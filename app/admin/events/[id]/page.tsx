@@ -11,7 +11,6 @@ export default function EventForm({ params }: { params: { id: string } }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -28,9 +27,7 @@ export default function EventForm({ params }: { params: { id: string } }) {
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
-
       try {
-        // If editing, fetch event data
         if (isEditing && params.id !== "new") {
           const { data: event, error } = await supabase
             .from("events")
@@ -38,12 +35,9 @@ export default function EventForm({ params }: { params: { id: string } }) {
             .eq("id", params.id)
             .single();
 
-          if (error) {
-            throw error;
-          }
+          if (error) throw error;
 
           if (event) {
-            // Format dates for input fields (YYYY-MM-DD)
             const formatDateForInput = (dateString: string) => {
               const date = new Date(dateString);
               return date.toISOString().split("T")[0];
@@ -76,7 +70,6 @@ export default function EventForm({ params }: { params: { id: string } }) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -88,7 +81,6 @@ export default function EventForm({ params }: { params: { id: string } }) {
       const file = e.target.files[0];
       setImageFile(file);
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -122,35 +114,25 @@ export default function EventForm({ params }: { params: { id: string } }) {
     setError(null);
 
     try {
-      // Validate form
       if (!formData.title || !formData.start_date) {
-        throw new Error("Title and start date are required fields");
+        throw new Error("Title and start date are required fields.");
       }
 
-      // Upload image if provided
       let imageUrl = formData.image_url;
       if (imageFile) {
         imageUrl = await uploadImage();
       }
 
-      const eventData = {
-        ...formData,
-        image_url: imageUrl,
-      };
+      const eventData = { ...formData, image_url: imageUrl };
 
       if (isEditing) {
-        // Update existing event
         const { error } = await supabase.from("events").update(eventData).eq("id", params.id);
-
         if (error) throw error;
       } else {
-        // Create new event
         const { error } = await supabase.from("events").insert([eventData]);
-
         if (error) throw error;
       }
 
-      // Redirect back to events list
       router.push("/admin/events");
       router.refresh();
     } catch (error: any) {
@@ -172,7 +154,6 @@ export default function EventForm({ params }: { params: { id: string } }) {
 
     try {
       const { error } = await supabase.from("events").delete().eq("id", params.id);
-
       if (error) throw error;
 
       router.push("/admin/events");
@@ -183,5 +164,5 @@ export default function EventForm({ params }: { params: { id: string } }) {
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 }
