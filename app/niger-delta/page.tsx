@@ -37,7 +37,7 @@ const nigerDeltaArtworks = [
     artist: "Blessing Okoye",
     medium: "Textile art",
     period: "2021",
-    image: "/images/",
+    image: "/images/DSC_1253.jpg",
     description: "Traditional patterns and symbols from Niger Delta cultures reimagined in textile form.",
   },
   {
@@ -46,7 +46,7 @@ const nigerDeltaArtworks = [
     artist: "David Ekpo",
     medium: "Acrylic on canvas",
     period: "2023",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/DSC_1255.jpg",
     description: "Abstract patterns inspired by the mangrove ecosystems of the Niger Delta.",
   },
   {
@@ -55,7 +55,7 @@ const nigerDeltaArtworks = [
     artist: "Amara Nwosu",
     medium: "Mixed media installation",
     period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/DSC_1876-1-scaled.jpg",
     description: "An installation exploring themes of resistance and resilience in Niger Delta communities.",
   },
 ]

@@ -182,3 +182,4 @@ export default function EventForm({ params }: { params: { id: string } }) {
     }
   }
 
+}
