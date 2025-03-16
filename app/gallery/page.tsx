@@ -10,15 +10,15 @@ const galleryItems = [
     id: 1,
     title: "Abstract Harmony",
     artist: "Elena Rodriguez",
-    category: "Contemporary",
-    image: "/placeholder.svg?height=600&width=800",
+    category: "African",
+    image: "/images/AfricanArt.jpg",
   },
   {
     id: 2,
     title: "Cultural Heritage",
     artist: "Kwame Osei",
     category: "African",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/",
   },
   {
     id: 3,

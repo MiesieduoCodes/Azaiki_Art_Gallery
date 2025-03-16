@@ -10,7 +10,7 @@ const nigerDeltaArtworks = [
     artist: "Tunde Adebayo",
     medium: "Oil on canvas",
     period: "2021",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/DSC_1156.jpg",
     description: "A vibrant depiction of daily life along the Niger Delta waterways.",
   },
   {
@@ -19,7 +19,7 @@ const nigerDeltaArtworks = [
     artist: "Emmanuel Okon",
     medium: "Mixed media",
     period: "2020",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/DSC_1239.jpg",
     description: "An exploration of traditional practices in coastal Niger Delta communities.",
   },
   {
@@ -28,7 +28,7 @@ const nigerDeltaArtworks = [
     artist: "Ngozi Eze",
     medium: "Photography",
     period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/DSC_1251.jpg",
     description: "A photographic series documenting environmental challenges in the Niger Delta region.",
   },
   {
@@ -37,7 +37,7 @@ const nigerDeltaArtworks = [
     artist: "Blessing Okoye",
     medium: "Textile art",
     period: "2021",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/",
     description: "Traditional patterns and symbols from Niger Delta cultures reimagined in textile form.",
   },
   {
