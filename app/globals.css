@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Fonts */
+@import url('https://fonts.cdnfonts.com/css/against-2');
+@import url('https://fonts.cdnfonts.com/css/lufga');
+
+/* Root Variables */
+:root {
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e3a8a;
+  --secondary: #f8fafc;
+  --accent: #60a5fa;
+}
+
+/* Ensure Fonts Apply */
+h1, h2 {
+  font-family: "Against", sans-serif !important;
+}
+
+h3, p , a{
+  font-family: "Lufga", sans-serif !important;
+}
+
+/* Apply Fonts to Everything */
+* {
+  font-family: "Against", "Lufga", sans-serif !important;
+}
+
+/* Body Styles */
+body {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+/* Tailwind Component Layer */
+@layer components {
+  .btn-primary {
+    @apply bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-md transition-colors;
+  }
+
+  .btn-outline {
+    @apply border border-blue-700 text-blue-700 hover:bg-blue-50 font-medium py-2 px-4 rounded-md transition-colors;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-blue-900 mb-6;
+  }
+
+  .section-subtitle {
+    @apply text-xl md:text-2xl font-semibold text-blue-800 mb-4;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
