@@ -2,16 +2,16 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from 'react';
-// import { Filter, Search } from "lucide-react"
+import { Filter, Search } from "lucide-react"
 
 // Sample gallery data
 const galleryItems = [
   {
     id: 1,
-    title: "Abstract Harmony",
-    artist: "Elena Rodriguez",
+    title: "Another Day Another Tale",
+    artist: "Millicent Osumuo Onuegbu",
     category: "African",
-    image: "/images/AfricanArt.jpg",
+    image: "/images/IIMG-20250101-WA0024.jpg",
   },
   {
     id: 2,
@@ -22,9 +22,9 @@ const galleryItems = [
   },
   {
     id: 3,
-    title: "Urban Landscape",
-    artist: "Michael Chen",
-    category: "Contemporary",
+    title: "Marble Elegance",
+    artist: "Giovanni Rossi",
+    category: "Sculpture",
     image: "/placeholder.svg?height=600&width=800",
   },
   {
@@ -43,10 +43,10 @@ const galleryItems = [
   },
   {
     id: 6,
-    title: "Stone Expressions",
-    artist: "Carlos Mendez",
+    title: "null",
+    artist: "null",
     category: "Sculpture",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/IMG-20250314-WA0015.jpg",
   },
   {
     id: 7,
@@ -71,17 +71,17 @@ const galleryItems = [
   },
   {
     id: 10,
-    title: "Bronze Age",
-    artist: "Isabella Martinez",
+    title: "null",
+    artist: "null",
     category: "Sculpture",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/IMG-20250314-WA0017.jpg",
   },
   {
     id: 11,
-    title: "Coastal Traditions",
-    artist: "Emmanuel Okon",
+    title: "Ngala - Embracing Beauty and Positivity in Womanhood",
+    artist: "Millicent Osumuo Onuegbu",
     category: "Niger Delta",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/Ngala.jpg",
   },
   {
     id: 12,
@@ -113,10 +113,10 @@ const galleryItems = [
   },
   {
     id: 16,
-    title: "Marble Elegance",
-    artist: "Giovanni Rossi",
-    category: "Sculpture",
-    image: "/placeholder.svg?height=600&width=800",
+    title: "Defined Identity",
+    artist: "Millicent Osumuo Onuegbu",
+    category: "African",
+    image: "/images/IMG-20250101-WA0023.jpg",
   },
   {
     id: 17,
@@ -148,10 +148,10 @@ const galleryItems = [
   },
   {
     id: 21,
-    title: "Ocean Depths",
-    artist: "Marina Petrova",
-    category: "Contemporary",
-    image: "/placeholder.svg?height=600&width=800",
+    title: "null",
+    artist: "null",
+    category: "Sculptures",
+    image: "/images/IMG-20250314-WA0018.jpg",
   },
   {
     id: 22,
@@ -169,10 +169,10 @@ const galleryItems = [
   },
   {
     id: 24,
-    title: "Delta Reflections",
-    artist: "Obinna Nwankwo",
-    category: "Niger Delta",
-    image: "/placeholder.svg?height=600&width=800",
+    title: "null",
+    artist: "null",
+    category: "Sculptures",
+    image: "/images/IMG-20250314-WA0017.jpg",
   },
 ];
 
@@ -208,7 +208,7 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* Gallery Filters
+       
       <section className="py-8 bg-gray-50 border-b border-gray-200">
         <div className="container-custom">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -247,7 +247,7 @@ export default function Gallery() {
             </div>
           </div>
         </div>
-      </section> */}
+      </section> 
 
     {/* Gallery Grid */}
     <section className="py-12">

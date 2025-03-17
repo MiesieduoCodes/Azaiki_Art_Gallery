@@ -10,7 +10,7 @@ const africanArtworks = [
     region: "West Africa",
     period: "Contemporary",
     image: "/images/IMG-20250101-WA0024.jpg",
-    description: "This artwork captures a fleeting moment in the everyday journey of two siblings on an errand for their mama. Their backs are to the viewer, yet the scene speaks volumes about their bond, their world, and the stories they share along the way. With each passing day, these errands become adventures, with the children weaving fresh tales and playful stories, their imaginations running wild as they move through the familiar sights and sounds of their community. The piece captures the essence of childhood wonder, the innocence of sibling companionship, and the beauty of African life, where each day offers the promise of a new adventure, and every errand becomes a story waiting to unfold.",
+    description: "This artwork captures a fleeting moment in the everyday journey of two siblings on an errand for their mama. Their...",
   },
   {
     id: 2,
@@ -22,22 +22,22 @@ const africanArtworks = [
     description: "Intricate patterns inspired by traditional Ghanaian textiles and symbols.",
   },
   {
-    id: 3,
+    id: 16,
     title: "Defined Identity",
     artist: "Millicent Osumuo Onuegbu",
-    region: "East Africa",
+    region: "West Africa",
     period: "Contemporary",
     image: "/images/IMG-20250101-WA0023.jpg",
-    description: "Defined Identity represents the clarity and strength that comes from embracing one's true self. It is the powerful understanding of who we are, free from external expectations and judgments. In the gaze of the subject, we see not just a reflection of physical appearance, but the deep-rooted certainty of a woman who has shaped her own path. Her eyes, though not directly engaging the viewer, seem to look beyond, as if lost in thought, yet there is an undeniable firmness in her expression. The subtle distraction adds a layer of complexity to her identity—she is neither fully present nor detached, but grounded in her own world, confident in her own thoughts. Through the lenses of her glasses, her perspective is sharpened, her identity clear, and her presence undeniable. This is a woman who knows her worth, stands firm in her truth, and embodies the essence of self-assurance.",
+    description: "Defined Identity represents the clarity and strength that comes from embracing one's true self. It is the...",
   },
   {
-    id: 4,
+    id: 11,
     title: "Ngala - Embracing Beauty and Positivity in Womanhood",
     artist: "Millicent Osumuo Onuegbu",
     region: "Nigeria",
-    period: "2015",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Millicent's acrylic painting series, Ngala, is a mesmerizing portrayal of a woman's strength and beauty through a colorful depiction of flowers. The title of this magnificent body of work means 'pride' in Igbo language, spoken by the Igbo people of Nigeria. The painting series features busts of women adorned with loads of thick paste of colorful flowers on their heads, cascading down their faces and necks. The flowers symbolize the woman's willingness to replace the burdens and challenges of life with positivity and beauty. It is a message of hope for women to embrace their struggles and challenges and find strength in their beauty. Through the use of vibrant colors, intricate patterns, and delicate strokes, Millicent's artwork celebrates the diversity and uniqueness of womanhood. Each piece conveys a distinct emotional theme, yet they all have a common cultural representation of the African woman. The women in her paintings exude grace, elegance, and a strong feminine spirit. The Ngala series also conveys a message of self-love and empowerment to women. The women in the paintings wear their thorns as crowns, reminding us that the struggles we face in life are also a part of our journey, and we should embrace them without fear or shame. It is a call to every woman to wear her struggles as a badge of honor and use it as a tool for growth and positivity. Millicent's artwork is a beautiful celebration of the resilience and strength of women. It encourages every woman to embrace her beauty and positivity, even amidst life's challenges. Her artwork is a reminder that true strength comes from embracing our struggles and challenges and finding beauty in them. In conclusion, Ngala is a powerful and inspiring body of work that celebrates the beauty and strength of womanhood. It encourages women to wear their struggles with pride, embracing their journey with positivity and beauty. Through her artwork, Millicent inspires women to be proud of themselves, their culture, and their unique journey, reminding them that they are beautiful, strong, and worthy of pride",
+    period: "2023",
+    image: "/images/Ngala.jpg",
+    description: "Millicent's acrylic painting series, Ngala, is a mesmerizing portrayal of a woman's strength and beauty through...",
   },
   {
     id: 5,
@@ -59,36 +59,36 @@ const africanArtworks = [
   },
 ]
 
-// Sample regions data
-const regions = [
-  {
-    name: "West Africa",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Featuring art from Nigeria, Ghana, Senegal, and neighboring countries.",
-  },
-  {
-    name: "East Africa",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Showcasing works from Kenya, Ethiopia, Tanzania, and the Horn of Africa.",
-  },
-  {
-    name: "North Africa",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Art from Egypt, Morocco, Algeria, and the Mediterranean coast.",
-  },
-  {
-    name: "Central Africa",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Diverse works from the Congo Basin, Cameroon, and surrounding regions.",
-  },
-]
+// // Sample regions data
+// const regions = [
+//   {
+//     name: "West Africa",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Featuring art from Nigeria, Ghana, Senegal, and neighboring countries.",
+//   },
+//   {
+//     name: "East Africa",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Showcasing works from Kenya, Ethiopia, Tanzania, and the Horn of Africa.",
+//   },
+//   {
+//     name: "North Africa",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Art from Egypt, Morocco, Algeria, and the Mediterranean coast.",
+//   },
+//   {
+//     name: "Central Africa",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Diverse works from the Congo Basin, Cameroon, and surrounding regions.",
+//   },
+// ]
 
 export default function AfricanArt() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative bg-blue-700 text-white py-20">
-        <div className="absolute inset-0 opacity-20 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center"></div>
+      <section className="relative bg-blue-500 text-white py-20">
+        <div className="absolute inset-0 opacity-10 bg-[url('/images/Slavetrade.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">African Art Collection</h1>
@@ -130,7 +130,7 @@ export default function AfricanArt() {
             </div>
             <div className="relative h-96 rounded-lg overflow-hidden shadow-lg">
               <Image
-                src="/placeholder.svg?height=800&width=1200"
+                src="/images/Mandela.jpg"
                 alt="African art exhibition"
                 fill
                 className="object-cover"
@@ -180,7 +180,7 @@ export default function AfricanArt() {
         </div>
       </section>
 
-      {/* Regions */}
+      {/* Regions
       <section className="py-16">
         <div className="container-custom">
           <h2 className="section-title text-center mb-4">Explore by Region</h2>
@@ -208,7 +208,7 @@ export default function AfricanArt() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Collection Highlights */}
       <section className="py-16 bg-gray-50">
@@ -326,7 +326,7 @@ export default function AfricanArt() {
                 Join our expert guides for specialized tours of the African Art Collection, offered daily at 11:00 AM
                 and 2:00 PM.
               </p>
-              <Link href="/visit" className="text-blue-700 font-medium hover:text-blue-800">
+              <Link href="/contact" className="text-blue-700 font-medium hover:text-blue-800">
                 Book a Tour
               </Link>
             </div>
@@ -353,7 +353,7 @@ export default function AfricanArt() {
                 Watch our educational video series exploring the history, techniques, and cultural significance of
                 African art.
               </p>
-              <Link href="/resources/videos" className="text-blue-700 font-medium hover:text-blue-800">
+              <Link href="/" className="text-blue-700 font-medium hover:text-blue-800">
                 Watch Videos
               </Link>
             </div>
@@ -380,7 +380,7 @@ export default function AfricanArt() {
                 Participate in hands-on workshops led by African artists and educators, exploring traditional and
                 contemporary techniques.
               </p>
-              <Link href="/events/workshops" className="text-blue-700 font-medium hover:text-blue-800">
+              <Link href="/" className="text-blue-700 font-medium hover:text-blue-800">
                 Register for Workshops
               </Link>
             </div>

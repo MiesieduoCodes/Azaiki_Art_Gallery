@@ -256,11 +256,11 @@ export default function Contact() {
                 answer:
                   "Yes, we offer guided tours daily at 11:00 AM and 2:00 PM. Private tours can also be arranged with advance booking. Please contact our visitor services team for more information.",
               },
-              {
-                question: "Is the museum accessible for visitors with disabilities?",
-                answer:
-                  "Yes, our museum is fully accessible with ramps, elevators, and accessible restrooms. We also offer wheelchairs free of charge and can provide assistive listening devices for guided tours upon request.",
-              },
+              // {
+              //   question: "Is the museum accessible for visitors with disabilities?",
+              //   answer:
+              //     "Yes, our museum is fully accessible with ramps, elevators, and accessible restrooms. We also offer wheelchairs free of charge and can provide assistive listening devices for guided tours upon request.",
+              // },
             ].map((faq, index) => (
               <div key={index} className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">{faq.question}</h3>

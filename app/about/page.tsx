@@ -24,7 +24,7 @@ export default function About() {
             <div>
               <h2 className="section-title">Our Story</h2>
               <p className="text-gray-700 mb-4">
-                Founded in 2019, Azaiki Museum & Gallery has grown from a small local exhibition space to one of the
+                Founded in 2015, Azaiki Museum & Gallery has grown from a small local exhibition space to one of the
                 most respected art institutions in the region. Our journey began with a simple mission: to make art
                 accessible to everyone and to preserve cultural heritage for future generations.
               </p>

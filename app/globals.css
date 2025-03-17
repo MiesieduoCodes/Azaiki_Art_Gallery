@@ -32,6 +32,7 @@ h3, p , a{
 /* Body Styles */
 body {
   color: #0f172a;
+  scroll-behaviour: smooth;
   background-color: #ffffff;
 }
 

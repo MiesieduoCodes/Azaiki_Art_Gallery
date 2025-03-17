@@ -6,90 +6,73 @@ import { ArrowRight } from "lucide-react"
 const sculptureArtworks = [
   {
     id: 6,
-    title: "Stone Expressions",
-    artist: "Carlos Mendez",
-    material: "Marble",
-    period: "2021",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "A powerful marble sculpture exploring human emotion through abstract form.",
+    title: "null",
+    artist: "null",
+    material: "Wood",
+    period: "null",
+    image: "/images/IMG-20250314-WA0015.jpg",
+    description: "null",
   },
+  
   {
     id: 10,
-    title: "Bronze Age",
-    artist: "Isabella Martinez",
-    material: "Bronze",
-    period: "2019",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "A contemporary interpretation of classical bronze sculpture techniques.",
+    title: "null",
+    artist: "null",
+    material: "Wood",
+    period: "null",
+    image: "/images/IMG-20250314-WA0017.jpg",
+    description: "null",
   },
   {
     id: 21,
-    title: "Wooden Waves",
-    artist: "Hiroshi Tanaka",
-    material: "Cedar Wood",
-    period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Fluid forms carved from cedar create a sense of movement and tranquility.",
+    title: "null",
+    artist: "null",
+    material: "Wood",
+    period: "null",
+    image: "/images/IMG-20250314-WA0018.jpg",
+    description: "null",
   },
   {
     id: 24,
-    title: "Metal Symphony",
-    artist: "Gabriela Santos",
-    material: "Welded Steel",
-    period: "2020",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "An industrial-inspired piece combining various metal elements in harmonious composition.",
-  },
-  {
-    id: 27,
-    title: "Glass Reflections",
-    artist: "Thomas Wright",
-    material: "Blown Glass",
-    period: "2023",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Colorful blown glass sculptures that play with light and transparency.",
-  },
-  {
-    id: 30,
-    title: "Earth and Sky",
-    artist: "Maria Chen",
-    material: "Clay and Metal",
-    period: "2021",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "A mixed-media sculpture combining earthen clay with polished metal elements.",
+    title: "null",
+    artist: "null",
+    material: "Wood",
+    period: "null",
+    image: "/images/IMG-20250314-WA0017.jpg",
+    description: "null",
   },
 ]
 
-// Sample materials data
-const materials = [
-  {
-    name: "Stone & Marble",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Timeless materials that have been used for sculpture since ancient times.",
-  },
-  {
-    name: "Metal & Bronze",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Versatile materials allowing for both strength and delicate detail.",
-  },
-  {
-    name: "Wood",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "A warm, organic material with unique grain patterns and textures.",
-  },
-  {
-    name: "Mixed Media",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Contemporary sculptures combining multiple materials for innovative effects.",
-  },
-]
+// // Sample materials data
+// const materials = [
+//   {
+//     name: "Stone & Marble",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Timeless materials that have been used for sculpture since ancient times.",
+//   },
+//   {
+//     name: "Metal & Bronze",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Versatile materials allowing for both strength and delicate detail.",
+//   },
+//   {
+//     name: "Wood",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "A warm, organic material with unique grain patterns and textures.",
+//   },
+//   {
+//     name: "Mixed Media",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Contemporary sculptures combining multiple materials for innovative effects.",
+//   },
+// ]
 
 export default function SculpturesCollection() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative bg-blue-700 text-white py-20">
-        <div className="absolute inset-0 opacity-20 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center"></div>
+      <section className="relative bg-blue-500 text-white py-20">
+        <div className="absolute inset-0 opacity-20 bg-[url('/images/IMG-20250314-WA0010.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Sculpture Collection</h1>
@@ -182,7 +165,7 @@ export default function SculpturesCollection() {
         </div>
       </section>
 
-      {/* Materials */}
+      {/* Materials
       <section className="py-16">
         <div className="container-custom">
           <h2 className="section-title text-center mb-4">Explore by Material</h2>
@@ -219,7 +202,7 @@ export default function SculpturesCollection() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Collection Highlights */}
       <section className="py-16 bg-gray-50">
@@ -227,7 +210,7 @@ export default function SculpturesCollection() {
           <h2 className="section-title text-center mb-12">Collection Highlights</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {sculptureArtworks.slice(3, 6).map((artwork) => (
+            {sculptureArtworks.slice(0, 3).map((artwork) => (
               <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
                 <div className="relative h-64">
                   <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />

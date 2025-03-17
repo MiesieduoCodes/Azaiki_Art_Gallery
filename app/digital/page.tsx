@@ -10,7 +10,7 @@ const digitalArtworks = [
     artist: "Sophia Lee",
     technique: "3D Rendering",
     period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/IMG-20250314-WA0081.jpg",
     description: "An immersive 3D environment exploring the boundaries between reality and digital space.",
   },
   {
@@ -19,7 +19,7 @@ const digitalArtworks = [
     artist: "Alex Kim",
     technique: "VR Installation",
     period: "2023",
-    image: "/placeholder.svg?height=600&width=800",
+    image: "/images/IMG-20250314-WA0083.jpg",
     description: "A virtual reality experience that challenges perceptions of physical space.",
   },
   {
@@ -89,7 +89,7 @@ export default function DigitalArt() {
     <div className="bg-white">
       {/* Hero Section */}
       <section className="relative bg-blue-700 text-white py-20">
-        <div className="absolute inset-0 opacity-20 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 opacity-20 bg-[url('/images/IMG-20250314-WA0025.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Digital Art Collection</h1>
