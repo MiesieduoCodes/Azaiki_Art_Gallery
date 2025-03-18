@@ -11,7 +11,7 @@ const galleryItems = [
     title: "Another Day Another Tale",
     artist: "Millicent Osumuo Onuegbu",
     category: "African",
-    image: "/images/IIMG-20250101-WA0024.jpg",
+    image: "/images/IMG-20250101-WA0024.jpg",
   },
   {
     id: 2,
@@ -199,7 +199,7 @@ export default function Gallery() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="bg-blue-700 text-white py-16">
+      <section className="bg-blue-700 text-white pt-36 pb-10">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Art Gallery</h1>
           <p className="text-xl text-blue-100 max-w-3xl">

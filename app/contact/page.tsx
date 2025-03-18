@@ -47,7 +47,7 @@ export default function Contact() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="bg-blue-700 text-white py-16">
+      <section className="bg-blue-700 text-white pt-36 pb-10">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
           <p className="text-xl text-blue-100 max-w-3xl">

@@ -71,7 +71,7 @@ export default function SculpturesCollection() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative bg-blue-500 text-white py-20">
+      <section className="relative bg-blue-500 text-white pb-10 pt-36">
         <div className="absolute inset-0 opacity-20 bg-[url('/images/IMG-20250314-WA0010.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">

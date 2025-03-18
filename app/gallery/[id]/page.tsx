@@ -453,7 +453,7 @@ export default function ArtworkDetail({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="bg-white">
+    <div className="bg-white pt-36 pb-10">
       <div className="container-custom py-12">
         {/* Breadcrumb */}
         <div className="mb-8">

@@ -82,7 +82,7 @@ export default function ContemporaryArt() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative bg-blue-700 text-white py-20">
+      <section className="relative bg-blue-700 text-white pt-36 pb-10">
         <div className="absolute inset-0 opacity-20 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">

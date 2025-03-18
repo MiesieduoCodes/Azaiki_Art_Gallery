@@ -87,7 +87,7 @@ export default function AfricanArt() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative bg-blue-500 text-white py-20">
+      <section className="relative bg-blue-500 text-white pt-36 pb-10">
         <div className="absolute inset-0 opacity-10 bg-[url('/images/Slavetrade.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">

@@ -25,7 +25,7 @@ export default function SupabaseTutorial() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Supabase Integration Tutorial</h1>
         <p className="text-gray-600">
-          Learn how to use Supabase with your ArtVista gallery website. This guide covers authentication, database, storage, and deployment.
+          Learn how to use Supabase with your Azaiki gallery website. This guide covers authentication, database, storage, and deployment.
         </p>
       </div>
 

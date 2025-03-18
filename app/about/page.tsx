@@ -6,7 +6,7 @@ export default function About() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="bg-blue-700 text-white py-16">
+      <section className="bg-blue-700 text-white pt-36 pb-10">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">About Azaiki Art Gallery And Museum
 
@@ -29,7 +29,7 @@ export default function About() {
                 accessible to everyone and to preserve cultural heritage for future generations.
               </p>
               <p className="text-gray-700 mb-4">
-                Over the decades, we have expanded our collections, renovated our facilities, and developed educational
+                Over the years, we have expanded our collections, renovated our facilities, and developed educational
                 programs that reach thousands of visitors each year. Today, Our Museum stands as a beacon of artistic
                 excellence and cultural dialogue.
               </p>

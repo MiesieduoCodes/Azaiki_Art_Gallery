@@ -1,41 +1,40 @@
-"use client"
+// @/components/Login.tsx
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
-import { Mail, Lock, AlertCircle } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { Mail, Lock, AlertCircle } from "lucide-react";
 
 export default function Login() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const { signIn } = useAuth()
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const { error } = await signIn(email, password)
+      const { error } = await signIn(email, password);
 
       if (error) {
-        setError(error.message)
+        setError(error.message); // Set the error message from Supabase
       } else {
-        router.push("/dashboard")
+        router.push("/dashboard"); // Redirect to dashboard after successful login
       }
     } catch (err) {
-      setError("An unexpected error occurred")
-      console.error(err)
+      setError("An unexpected error occurred");
+      console.error(err);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -138,6 +137,5 @@ export default function Login() {
         </form>
       </div>
     </div>
-  )
+  );
 }
-

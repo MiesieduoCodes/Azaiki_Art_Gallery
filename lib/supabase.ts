@@ -58,17 +58,6 @@ export type Collection = {
   created_at: string
 }
 
-export type Event = {
-  id: number
-  title: string
-  description: string
-  start_date: string
-  end_date: string
-  location: string
-  image_url: string
-  created_at: string
-}
-
 export type Profile = {
   id: string
   user_id: string
