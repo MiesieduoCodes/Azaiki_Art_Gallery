@@ -1,21 +1,37 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, Heart, Clock, Settings, Menu, X } from "lucide-react";
+import type React from "react"
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const pathname = usePathname();
+import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
+import { User, Heart, Clock, Settings, LogOut, Menu, X, Home } from "lucide-react"
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const { user, signOut, isLoading } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const pathname = usePathname()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
+      </div>
+    )
+  }
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
+    { name: "Profile", href: "/dashboard/profile", icon: User },
     { name: "Favorites", href: "/dashboard/favorites", icon: Heart },
     { name: "Visit History", href: "/dashboard/history", icon: Clock },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -46,7 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex-1 overflow-y-auto">
               <nav className="px-2 py-4 space-y-1">
                 {navigation.map((item) => {
-                  const isActive = pathname === item.href;
+                  const isActive = pathname === item.href
                   return (
                     <Link
                       key={item.name}
@@ -64,9 +80,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       />
                       {item.name}
                     </Link>
-                  );
+                  )
                 })}
               </nav>
+            </div>
+
+            <div className="p-4 border-t border-gray-200">
+              <button
+                onClick={() => signOut()}
+                className="flex items-center px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-gray-900 w-full"
+              >
+                <LogOut className="mr-3 h-5 w-5 text-gray-500" />
+                Sign out
+              </button>
             </div>
           </div>
         </div>
@@ -83,7 +109,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex-1 overflow-y-auto">
           <nav className="px-2 py-4 space-y-1">
             {navigation.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href
               return (
                 <Link
                   key={item.name}
@@ -101,9 +127,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   />
                   {item.name}
                 </Link>
-              );
+              )
             })}
           </nav>
+        </div>
+
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={() => signOut()}
+            className="flex items-center px-2 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-gray-900 w-full"
+          >
+            <LogOut className="mr-3 h-5 w-5 text-gray-500" />
+            Sign out
+          </button>
         </div>
       </div>
 
@@ -126,5 +162,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     </div>
-  );
+  )
 }
+
