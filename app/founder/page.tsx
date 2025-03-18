@@ -135,9 +135,9 @@ const Page = () => {
   const { profileImage, coverImage, name, title, socialLinks, biography } = profile;
 
   return (
-    <div className="text-blue-900 min-h-screen bg-blue-900 pt-36 pb-10">
+    <div className="text-blue-900 min-h-screen bg-white">
       {/* Cover Section */}
-      <motion.div className="relative bg-cover pt-24 bg-center bg-no-repeat text-white py-32 w-full shadow-lg" style={{ backgroundImage: `url(${coverImage})` }}>
+      <motion.div className="relative  pt-36 pb-10 bg-cover bg-center bg-no-repeat text-white py-32 w-full shadow-lg" style={{ backgroundImage: `url(${coverImage})` }}>
         <div className="absolute inset-0 bg-blue-900 opacity-80"></div>
         <div className="w-full px-4 sm:px-6 lg:px-8 mx-auto flex flex-col items-center relative z-10">
           <motion.div className="w-40 h-40 rounded-full overflow-hidden shadow-xl border-4 border-blue-300">
