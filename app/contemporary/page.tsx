@@ -54,29 +54,29 @@ const contemporaryArtworks = [
   },
 ]
 
-// Sample themes data
-const themes = [
-  {
-    name: "Abstract Expressionism",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Exploring emotion and spontaneity through non-representational forms.",
-  },
-  {
-    name: "Minimalism",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Stripping art down to its fundamental features and core essence.",
-  },
-  {
-    name: "Pop Art",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Celebrating popular culture and challenging traditional fine art distinctions.",
-  },
-  {
-    name: "Conceptual Art",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Prioritizing ideas and concepts over traditional aesthetic concerns.",
-  },
-]
+// // Sample themes data
+// const themes = [
+//   {
+//     name: "Abstract Expressionism",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Exploring emotion and spontaneity through non-representational forms.",
+//   },
+//   {
+//     name: "Minimalism",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Stripping art down to its fundamental features and core essence.",
+//   },
+//   {
+//     name: "Pop Art",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Celebrating popular culture and challenging traditional fine art distinctions.",
+//   },
+//   {
+//     name: "Conceptual Art",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Prioritizing ideas and concepts over traditional aesthetic concerns.",
+//   },
+// ]
 
 export default function ContemporaryArt() {
   return (
@@ -175,7 +175,7 @@ export default function ContemporaryArt() {
       </section>
 
       {/* Themes */}
-      <section className="py-16">
+      {/* <section className="py-16">
         <div className="container-custom">
           <h2 className="section-title text-center mb-4">Explore by Theme</h2>
           <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
@@ -206,7 +206,7 @@ export default function ContemporaryArt() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Collection Highlights */}
       <section className="py-16 bg-gray-50">

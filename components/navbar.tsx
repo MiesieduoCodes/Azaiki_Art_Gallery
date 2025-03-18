@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Menu, X, ChevronDown } from "lucide-react"
 
 const navigation = [
@@ -33,18 +33,27 @@ const navigation = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const toggleDropdown = (name: string) => {
     setOpenDropdown(openDropdown === name ? null : name)
   }
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
       <div className="container-custom">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
-            <a href="/" className="flex items-center">
-              <span className="text-2xl font-bold text-blue-700">Azaiki Art Gallery And Museum</span>
+            <a href="/" className={`flex items-center ${scrolled ? "text-black" : "text-white"}`}>
+              <span className="text-2xl font-bold">Azaiki Art Gallery And Museum</span>
             </a>
           </div>
 
@@ -55,7 +64,7 @@ export default function Navbar() {
                 <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-800 hover:text-blue-700 font-medium transition-colors"
+                  className={`font-medium transition-colors ${scrolled ? "text-black hover:text-blue-700" : "text-white hover:text-gray-300"}`}
                 >
                   {item.name}
                 </a>
@@ -63,11 +72,9 @@ export default function Navbar() {
                 <div key={item.name} className="relative group">
                   <button
                     onClick={() => toggleDropdown(item.name)}
-                    className="flex items-center text-gray-800 hover:text-blue-700 font-medium transition-colors"
+                    className={`flex items-center font-medium transition-colors ${scrolled ? "text-black hover:text-blue-700" : "text-white hover:text-gray-300"}`}
                   >
-                    <p>
                     {item.name}
-                    </p>
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
 
@@ -91,7 +98,7 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-800 hover:text-blue-700">
+            <button onClick={() => setIsOpen(!isOpen)} className={scrolled ? "text-black" : "text-white"}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
@@ -99,7 +106,7 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="md:hidden py-4 border-t border-gray-200 bg-white">
             <div className="flex flex-col space-y-3">
               {navigation.map((item) =>
                 !item.children ? (
@@ -145,4 +152,3 @@ export default function Navbar() {
     </header>
   )
 }
-

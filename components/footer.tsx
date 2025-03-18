@@ -36,22 +36,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/exhibitions" className="text-blue-200 hover:text-white transition-colors">
-                  Exhibitions
-                </Link>
-              </li>
-              <li>
                 <Link href="/gallery" className="text-blue-200 hover:text-white transition-colors">
                   Gallery
                 </Link>
               </li>
               <li>
-                <Link href="/events" className="text-blue-200 hover:text-white transition-colors">
-                  Events
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="text-blue-200 hover:text-white transition-colors">
+                <Link href="/contact#Faq" className="text-blue-200 hover:text-white transition-colors">
                   FAQ
                 </Link>
               </li>
@@ -94,7 +84,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="mr-2 h-5 w-5 text-blue-300 flex-shrink-0 mt-0.5" />
-                <span className="text-blue-100"><p>123 Art Street, Gallery District, Yenagoa ,Bayelsa State</p></span>
+                <span className="text-blue-100"><p> Beside Azaiki Public Library, Imgbi Road , Yenagoa ,Bayelsa State</p></span>
               </li>
               <li className="flex items-center">
                 <Phone className="mr-2 h-5 w-5 text-blue-300 flex-shrink-0" />

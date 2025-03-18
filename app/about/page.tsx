@@ -210,9 +210,9 @@ export default function About() {
                   <div>
                     <h3 className="font-semibold text-lg">Location</h3>
                     <p className="text-blue-100">
-                      123 Art Street, Gallery District
+                    Beside Azaiki Public Library, Imgbi Road
                       <br />
-                      City, Country
+                      Yenagoa, Bayelsa State.
                     </p>
                   </div>
                 </div>

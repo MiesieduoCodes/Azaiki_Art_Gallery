@@ -81,8 +81,8 @@ export default function Contact() {
             <div className="bg-white p-8 rounded-lg shadow-md">
               <MapPin className="h-10 w-10 text-blue-700 mb-4" />
               <h3 className="text-xl font-bold text-blue-900 mb-2">Visit Us</h3>
-              <p className="text-gray-700 mb-2">123 Art Street, Gallery District</p>
-              <p className="text-gray-700">City, Country</p>
+              <p className="text-gray-700 mb-2">Beside Azaiki Public Library, Imgbi Road</p>
+              <p className="text-gray-700">Yenagoa, Bayelsa State</p>
             </div>
           </div>
         </div>
@@ -209,10 +209,7 @@ export default function Contact() {
                     <span className="text-gray-700">Saturday - Sunday</span>
                     <span className="font-medium">11:00 AM - 5:00 PM</span>
                   </li>
-                  <li className="flex justify-between">
-                    <span className="text-gray-700">Public Holidays</span>
-                    <span className="font-medium">Check website</span>
-                  </li>
+
                 </ul>
               </div>
 
@@ -234,8 +231,8 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-16">
+      {/* FAQ */} 
+      <section className="py-16" id="Faq">
         <div className="container-custom">
           <h2 className="section-title text-center mb-12">Frequently Asked Questions</h2>
 

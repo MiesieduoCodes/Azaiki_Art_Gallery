@@ -60,29 +60,29 @@ const digitalArtworks = [
   },
 ]
 
-// Sample techniques data
-const techniques = [
-  {
-    name: "Digital Painting",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Creating artwork using digital tools that simulate traditional painting techniques.",
-  },
-  {
-    name: "3D Modeling & Rendering",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Building three-dimensional digital models and creating realistic or stylized renderings.",
-  },
-  {
-    name: "Generative Art",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Using algorithms, autonomous systems, and AI to create art through code.",
-  },
-  {
-    name: "VR & AR Installations",
-    image: "/placeholder.svg?height=400&width=600",
-    description: "Immersive experiences using virtual and augmented reality technologies.",
-  },
-]
+// // Sample techniques data
+// const techniques = [
+//   {
+//     name: "Digital Painting",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Creating artwork using digital tools that simulate traditional painting techniques.",
+//   },
+//   {
+//     name: "3D Modeling & Rendering",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Building three-dimensional digital models and creating realistic or stylized renderings.",
+//   },
+//   {
+//     name: "Generative Art",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Using algorithms, autonomous systems, and AI to create art through code.",
+//   },
+//   {
+//     name: "VR & AR Installations",
+//     image: "/placeholder.svg?height=400&width=600",
+//     description: "Immersive experiences using virtual and augmented reality technologies.",
+//   },
+// ]
 
 export default function DigitalArt() {
   return (
@@ -133,7 +133,7 @@ export default function DigitalArt() {
             </div>
             <div className="relative h-96 rounded-lg overflow-hidden shadow-lg">
               <Image
-                src="/placeholder.svg?height=800&width=1200"
+                src="/images/IMG-20250314-WA0037.jpg"
                 alt="Digital art exhibition"
                 fill
                 className="object-cover"
@@ -183,7 +183,7 @@ export default function DigitalArt() {
         </div>
       </section>
 
-      {/* Techniques */}
+      {/* Techniques
       <section className="py-16">
         <div className="container-custom">
           <h2 className="section-title text-center mb-4">Explore by Technique</h2>
@@ -220,7 +220,7 @@ export default function DigitalArt() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Collection Highlights */}
       <section className="py-16 bg-gray-50">

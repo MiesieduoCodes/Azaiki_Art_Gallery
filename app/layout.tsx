@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Azaiki Art Gallery and Museum",
   description: "Explore the world of art through our diverse collections and exhibitions.",
-  generator: "v0.dev",
+  generator: "GoofyDidThis",
 }
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -37,8 +37,8 @@ export default function RootLayout({
         <meta property="og:title" content="Azaiki Art Gallery and Museum" />
         <meta property="og:description" content="Discover a collection of timeless art pieces and exhibitions at the Azaiki Art Gallery and Museum." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://azaikiartgallery.com" />
-        <meta property="og:image" content="https://azaikiartgallery.com/og-image.jpg" />
+        <meta property="og:url" content="https://azaikiartgallery.org.ng" />
+        <meta property="og:image" content="https://azaikiartgallery.org.ng/og-image.jpg" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />

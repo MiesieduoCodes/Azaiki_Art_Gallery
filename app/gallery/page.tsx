@@ -2,7 +2,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from 'react';
-import { Filter, Search } from "lucide-react"
+// import { Filter, Search } from "lucide-react"
 
 // Sample gallery data
 const galleryItems = [
@@ -208,7 +208,7 @@ export default function Gallery() {
         </div>
       </section>
 
-       
+      {/* Gallery Filters
       <section className="py-8 bg-gray-50 border-b border-gray-200">
         <div className="container-custom">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -247,7 +247,7 @@ export default function Gallery() {
             </div>
           </div>
         </div>
-      </section> 
+      </section> */}
 
     {/* Gallery Grid */}
     <section className="py-12">

@@ -24,15 +24,10 @@ h3, p , a{
   font-family: "Lufga", sans-serif !important;
 }
 
-/* Apply Fonts to Everything */
-* {
-  font-family: "Against", "Lufga", sans-serif !important;
-}
 
 /* Body Styles */
 body {
   color: #0f172a;
-  scroll-behaviour: smooth;
   background-color: #ffffff;
 }
 
