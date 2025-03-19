@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Menu, X, ChevronDown } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 const navigation = [
   { name: "About", href: "/about" },
@@ -28,24 +28,24 @@ const navigation = [
     ],
   },
   { name: "Contact", href: "/contact" },
-]
+];
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
-  const [scrolled, setScrolled] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleDropdown = (name: string) => {
-    setOpenDropdown(openDropdown === name ? null : name)
-  }
+    setOpenDropdown(openDropdown === name ? null : name);
+  };
 
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-white shadow-md" : "bg-transparent"}`}>
@@ -53,7 +53,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
             <a href="/" className={`flex items-center ${scrolled ? "text-black" : "text-white"}`}>
-              <span className="text-2xl font-bold">Azaiki Art Gallery And Museum</span>
+              <span className="text-2xl font-bold">Azaiki Art Gallery <br></br> And Museum</span>
             </a>
           </div>
 
@@ -79,7 +79,7 @@ export default function Navbar() {
                   </button>
 
                   {openDropdown === item.name && (
-                    <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 transform transition-all duration-300 ease-in-out translate-x-0 opacity-100">
                       {item.children.map((child) => (
                         <a
                           key={child.name}
@@ -150,5 +150,5 @@ export default function Navbar() {
         )}
       </div>
     </header>
-  )
+  );
 }

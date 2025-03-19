@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
-import { supabase } from "@/lib/supabase"
+import { supabase } from "@/lib/firebase"
 import { Heart, Clock, User, Settings, ArrowRight } from "lucide-react"
 
 export default function Dashboard() {

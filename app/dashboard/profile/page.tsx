@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
-import { supabase } from "@/lib/supabase"
+import { supabase } from "@/lib/firebase"
 import { Save } from "lucide-react"
 
 export default function Profile() {

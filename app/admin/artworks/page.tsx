@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { supabase } from "@/lib/supabase"
+import { supabase } from "@/lib/firebase"
 import { Plus, Search, Filter, Edit, Trash2, ChevronLeft, ChevronRight, Star, StarOff } from "lucide-react"
-import type { Artwork } from "@/lib/supabase"
+import type { Artwork } from "@/lib/firebase"
 
 export default function ArtworksManagement() {
   const [artworks, setArtworks] = useState<Artwork[]>([])

@@ -1,50 +1,24 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
+export function middleware(request: NextRequest) {
+  // For Firebase, we'll need to check for the session cookie
+  // This is a simplified version - in a real app, you'd verify the Firebase session
+  const authCookie = request.cookies.get("__session")
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  // Check if the request is for the admin dashboard
-  if (req.nextUrl.pathname.startsWith("/admin")) {
-    if (!session) {
-      // Redirect to login if not authenticated
-      return NextResponse.redirect(new URL("/auth/login", req.url))
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single()
-
-    if (profile?.role !== "admin") {
-      // Redirect to dashboard if not admin
-      return NextResponse.redirect(new URL("/dashboard", req.url))
+  // Check if the user is trying to access an admin route
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    // If there's no auth cookie, redirect to login
+    if (!authCookie) {
+      const loginUrl = new URL("/auth/login", request.url)
+      return NextResponse.redirect(loginUrl)
     }
   }
 
-  // Check if the request is for the user dashboard
-  if (req.nextUrl.pathname.startsWith("/dashboard") && !session) {
-    // Redirect to login if not authenticated
-    return NextResponse.redirect(new URL("/auth/login", req.url))
-  }
-
-  // Check if the request is for auth pages
-  if (
-    (req.nextUrl.pathname.startsWith("/auth/login") || req.nextUrl.pathname.startsWith("/auth/register")) &&
-    session
-  ) {
-    // Redirect to dashboard if already authenticated
-    return NextResponse.redirect(new URL("/dashboard", req.url))
-  }
-
-  return res
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/auth/:path*"],
+  matcher: ["/admin/:path*"],
 }
 

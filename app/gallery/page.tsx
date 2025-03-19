@@ -324,17 +324,17 @@ export default function Gallery() {
             {[
               {
                 title: "African Masterpieces",
-                image: "/placeholder.svg?height=400&width=600",
+                image: "/images/IMG-20250314-WA0052.jpg",
                 link: "/african",
               },
               {
                 title: "Digital Revolution",
-                image: "/placeholder.svg?height=400&width=600",
+                image: "/images/IMG-20250314-WA0083.jpg",
                 link: "/digital",
               },
               {
                 title: "Niger Delta Heritage",
-                image: "/placeholder.svg?height=400&width=600",
+                image: "/images/nigerdelta.jpg",
                 link: "/niger-delta",
               },
             ].map((collection, index) => (

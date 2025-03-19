@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { supabase } from "@/lib/supabase"
+import { supabase } from "@/lib/firebase"
 import { Plus, Search, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
-import type { Collection } from "@/lib/supabase"
+import type { Collection } from "@/lib/firebase"
 
 export default function CollectionsManagement() {
   const [collections, setCollections] = useState<Collection[]>([])
