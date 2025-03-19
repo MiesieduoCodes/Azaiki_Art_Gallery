@@ -3,98 +3,118 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
+import { AuthProvider } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
+import { LayoutDashboard, ImageIcon, Users, LogOut, Menu } from "lucide-react"
+import Link from "next/link"
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout } = useAuth()
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
+  const { user, loading, signOut } = useAuth()
   const router = useRouter()
-  const [isClient, setIsClient] = useState(false)
+  const pathname = usePathname()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   useEffect(() => {
-    setIsClient(true)
-
-    if (!loading && !user) {
-      router.push("/auth/login")
+    if (!loading && !user && pathname !== "/admin/login") {
+      router.push("/admin/login")
     }
-  }, [user, loading, router])
+  }, [user, loading, router, pathname])
 
-  const handleLogout = async () => {
-    await logout()
-    router.push("/auth/login")
-  }
-
-  // Don't render anything on the server to prevent hydration errors
-  if (!isClient) {
-    return null
-  }
-
-  // Show loading state
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold">Loading...</h2>
-          <p>Please wait while we load your dashboard</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     )
   }
 
-  // If not authenticated, don't render anything (will redirect in useEffect)
-  if (!user) {
+  if (!user && pathname !== "/admin/login") {
     return null
   }
 
+  if (pathname === "/admin/login") {
+    return <>{children}</>
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push("/admin/login")
+  }
+
+  const navItems = [
+    { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/artworks", label: "Artworks", icon: ImageIcon },
+    { href: "/admin/artists", label: "Artists", icon: Users },
+  ]
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="bg-white shadow">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">{user.email}</span>
-            <Button variant="outline" onClick={handleLogout}>
-              Logout
+    <div className="flex h-screen bg-gray-100">
+      {/* Mobile sidebar toggle */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="fixed top-4 left-4 z-50 md:hidden"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        <Menu />
+      </Button>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          <div className="p-6 border-b">
+            <h2 className="text-2xl font-bold">Admin Panel</h2>
+          </div>
+          <nav className="flex-1 p-4 space-y-2">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center p-3 rounded-lg transition-colors ${
+                    isActive ? "bg-primary text-primary-foreground" : "hover:bg-gray-100"
+                  }`}
+                >
+                  <Icon className="mr-3 h-5 w-5" />
+                  {item.label}
+                </Link>
+              )
+            })}
+          </nav>
+          <div className="p-4 border-t">
+            <Button variant="outline" className="w-full flex items-center justify-center" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
             </Button>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="flex flex-1">
-        <aside className="w-64 bg-gray-50 p-4">
-          <nav className="space-y-1">
-            <Link
-              href="/admin"
-              className="block rounded-md px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/admin/artists"
-              className="block rounded-md px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-            >
-              Artists
-            </Link>
-            <Link
-              href="/admin/artworks"
-              className="block rounded-md px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-            >
-              Artworks
-            </Link>
-            <Link
-              href="/admin/collections"
-              className="block rounded-md px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-            >
-              Collections
-            </Link>
-          </nav>
-        </aside>
-
-        <main className="flex-1 p-6">{children}</main>
+      {/* Main content */}
+      <div className="flex-1 ml-0 md:ml-64 transition-all duration-300 ease-in-out">
+        <main className="p-6">{children}</main>
       </div>
     </div>
+  )
+}
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <AuthProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </AuthProvider>
   )
 }
 

@@ -33,12 +33,13 @@ export default function LoginPage() {
       setIsLoading(false)
     }
   }
+  // email:admin@admin.com password:Admin@123
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gray-700 px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full bg-white rounded-xl max-w-md">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">Sign in to your account</CardTitle>
+          <CardTitle className="text-center text-2xl font-bold">Log in to your account</CardTitle>
           <CardDescription className="text-center">
             Enter your email and password to access the admin dashboard
           </CardDescription>
@@ -82,8 +83,8 @@ export default function LoginPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign in"}
+            <Button type="submit" className="w-full hover:text-black hover:bg-blue-800 bg-blue-400 text-white" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Log in"}
             </Button>
           </form>
         </CardContent>

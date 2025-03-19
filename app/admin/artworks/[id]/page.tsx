@@ -2,502 +2,434 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/firebase"
-import { ArrowLeft, Save, Trash2 } from "lucide-react"
-import Link from "next/link"
+import { doc, getDoc, setDoc, serverTimestamp, collection, getDocs } from "firebase/firestore"
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage"
+import { db, storage } from "@/lib/firebase"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { ArrowLeft, Upload, Loader2, X } from "lucide-react"
+import Image from "next/image"
 
-export default function ArtworkForm({ params }: { params: { id: string } }) {
+interface Artist {
+  id: string
+  name: string
+}
+
+interface ArtworkFormData {
+  title: string
+  artistId: string
+  category: string
+  description: string
+  year: string
+  medium: string
+  dimensions: string
+  price: string
+  imageUrl: string
+}
+
+export default function ArtworkFormPage({ params }: { params: { id: string } }) {
   const isEditing = params.id !== "new"
-  const router = useRouter()
-
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [artists, setArtists] = useState<{ id: number; name: string }[]>([])
-  const [collections, setCollections] = useState<{ id: number; name: string }[]>([])
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ArtworkFormData>({
     title: "",
-    artist_id: "",
-    collection_id: "",
+    artistId: "",
+    category: "",
+    description: "",
     year: "",
     medium: "",
     dimensions: "",
-    description: "",
-    image_url: "",
-    featured: false,
+    price: "",
+    imageUrl: "",
   })
-
+  const [artists, setArtists] = useState<Artist[]>([])
+  const [isLoading, setIsLoading] = useState(isEditing)
+  const [isSaving, setIsSaving] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
+  const [discardDialogOpen, setDiscardDialogOpen] = useState(false)
+  const router = useRouter()
+
+  const categories = ["Contemporary", "African", "Digital", "Sculptures", "Niger Delta"]
 
   useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true)
-
+    const fetchArtists = async () => {
       try {
-        // Fetch artists and collections for dropdowns
-        const [artistsResponse, collectionsResponse] = await Promise.all([
-          supabase.from("artists").select("id, name").order("name"),
-          supabase.from("collections").select("id, name").order("name"),
-        ])
-
-        setArtists(artistsResponse.data || [])
-        setCollections(collectionsResponse.data || [])
-
-        // If editing, fetch artwork data
-        if (isEditing && params.id !== "new") {
-          const { data: artwork, error } = await supabase.from("artworks").select("*").eq("id", params.id).single()
-
-          if (error) {
-            throw error
-          }
-
-          if (artwork) {
-            setFormData({
-              title: artwork.title || "",
-              artist_id: artwork.artist_id?.toString() || "",
-              collection_id: artwork.collection_id?.toString() || "",
-              year: artwork.year || "",
-              medium: artwork.medium || "",
-              dimensions: artwork.dimensions || "",
-              description: artwork.description || "",
-              image_url: artwork.image_url || "",
-              featured: artwork.featured || false,
-            })
-
-            if (artwork.image_url) {
-              setImagePreview(artwork.image_url)
-            }
-          }
-        }
+        const snapshot = await getDocs(collection(db, "artists"))
+        const artistsList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+        }))
+        setArtists(artistsList)
       } catch (error) {
-        console.error("Error fetching data:", error)
-        setError("Failed to load data. Please try again.")
-      } finally {
-        setIsLoading(false)
+        console.error("Error fetching artists:", error)
       }
     }
 
-    fetchData()
+    fetchArtists()
+
+    if (isEditing) {
+      fetchArtwork()
+    }
   }, [isEditing, params.id])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
+  const fetchArtwork = async () => {
+    try {
+      const docRef = doc(db, "artworks", params.id)
+      const docSnap = await getDoc(docRef)
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
-    }))
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        setFormData({
+          title: data.title || "",
+          artistId: data.artistId || "",
+          category: data.category || "",
+          description: data.description || "",
+          year: data.year || "",
+          medium: data.medium || "",
+          dimensions: data.dimensions || "",
+          price: data.price || "",
+          imageUrl: data.imageUrl || "",
+        })
+      } else {
+        console.error("Artwork not found")
+        router.push("/admin/artworks")
+      }
+    } catch (error) {
+      console.error("Error fetching artwork:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      setImageFile(file)
-
-      // Create preview
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+      setImageFile(e.target.files[0])
     }
   }
 
   const uploadImage = async (): Promise<string> => {
-    if (!imageFile) {
-      return formData.image_url
-    }
+    if (!imageFile) return formData.imageUrl
 
-    const fileExt = imageFile.name.split(".").pop()
-    const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`
-    const filePath = `artworks/${fileName}`
+    setIsUploading(true)
 
-    const { error: uploadError } = await supabase.storage.from("images").upload(filePath, imageFile)
+    const storageRef = ref(storage, `artworks/${Date.now()}_${imageFile.name}`)
+    const uploadTask = uploadBytesResumable(storageRef, imageFile)
 
-    if (uploadError) {
-      throw uploadError
-    }
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          setUploadProgress(progress)
+        },
+        (error) => {
+          console.error("Error uploading image:", error)
+          setIsUploading(false)
+          reject("")
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+          setIsUploading(false)
 
-    const { data } = supabase.storage.from("images").getPublicUrl(filePath)
-    return data.publicUrl
+          // If updating and there's an existing image, delete the old one
+          if (isEditing && formData.imageUrl && formData.imageUrl !== downloadURL) {
+            try {
+              const oldImageRef = ref(storage, formData.imageUrl)
+              await deleteObject(oldImageRef)
+            } catch (error) {
+              console.error("Error deleting old image:", error)
+            }
+          }
+
+          resolve(downloadURL)
+        },
+      )
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
-    setError(null)
 
     try {
-      // Validate form
-      if (!formData.title || !formData.artist_id) {
-        throw new Error("Title and artist are required fields")
-      }
-
-      // Upload image if provided
-      let imageUrl = formData.image_url
-      if (imageFile) {
-        imageUrl = await uploadImage()
-      }
+      // Upload image if selected
+      const imageUrl = await uploadImage()
 
       const artworkData = {
         ...formData,
-        artist_id: Number.parseInt(formData.artist_id),
-        collection_id: formData.collection_id ? Number.parseInt(formData.collection_id) : null,
-        image_url: imageUrl,
+        imageUrl,
+        updatedAt: serverTimestamp(),
       }
 
-      if (isEditing) {
-        // Update existing artwork
-        const { error } = await supabase.from("artworks").update(artworkData).eq("id", params.id)
-
-        if (error) throw error
-      } else {
-        // Create new artwork
-        const { error } = await supabase.from("artworks").insert([artworkData])
-
-        if (error) throw error
+      if (!isEditing) {
+        artworkData.createdAt = serverTimestamp()
       }
 
-      // Redirect back to artworks list
+      const docRef = isEditing ? doc(db, "artworks", params.id) : doc(collection(db, "artworks"))
+
+      await setDoc(docRef, artworkData, { merge: isEditing })
+
       router.push("/admin/artworks")
-      router.refresh()
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error saving artwork:", error)
-      setError(error.message || "Failed to save artwork. Please try again.")
     } finally {
       setIsSaving(false)
     }
   }
 
-  const handleDelete = async () => {
-    if (!isEditing) return
-
-    if (!confirm("Are you sure you want to delete this artwork? This action cannot be undone.")) {
-      return
-    }
-
-    setIsSaving(true)
-
-    try {
-      const { error } = await supabase.from("artworks").delete().eq("id", params.id)
-
-      if (error) throw error
-
+  const handleCancel = () => {
+    if (
+      formData.title ||
+      formData.description ||
+      imageFile ||
+      (isEditing &&
+        JSON.stringify(formData) !==
+          JSON.stringify({
+            title: "",
+            artistId: "",
+            category: "",
+            description: "",
+            year: "",
+            medium: "",
+            dimensions: "",
+            price: "",
+            imageUrl: "",
+          }))
+    ) {
+      setDiscardDialogOpen(true)
+    } else {
       router.push("/admin/artworks")
-      router.refresh()
-    } catch (error: any) {
-      console.error("Error deleting artwork:", error)
-      setError(error.message || "Failed to delete artwork. Please try again.")
-    } finally {
-      setIsSaving(false)
     }
   }
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-700"></div>
+      <div className="flex justify-center py-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     )
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <Link href="/admin/artworks" className="mr-4 p-2 rounded-full hover:bg-gray-200">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900">{isEditing ? "Edit Artwork" : "Add New Artwork"}</h1>
-        </div>
-
-        {isEditing && (
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            disabled={isSaving}
-          >
-            <Trash2 className="h-5 w-5 mr-2" />
-            Delete Artwork
-          </button>
-        )}
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" onClick={handleCancel}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-3xl font-bold">{isEditing ? "Edit Artwork" : "Add New Artwork"}</h1>
       </div>
 
-      {error && (
-        <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Artwork Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title *</Label>
+                <Input id="title" name="title" value={formData.title} onChange={handleInputChange} required />
+              </div>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <form onSubmit={handleSubmit}>
-          <div className="p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <div className="sm:col-span-3">
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                Title *
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  name="title"
-                  id="title"
+              <div className="space-y-2">
+                <Label htmlFor="artistId">Artist *</Label>
+                <Select
+                  value={formData.artistId}
+                  onValueChange={(value) => handleSelectChange("artistId", value)}
                   required
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an artist" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {artists.map((artist) => (
+                      <SelectItem key={artist.id} value={artist.id}>
+                        {artist.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
 
-            <div className="sm:col-span-3">
-              <label htmlFor="artist_id" className="block text-sm font-medium text-gray-700">
-                Artist *
-              </label>
-              <div className="mt-1">
-                <select
-                  id="artist_id"
-                  name="artist_id"
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => handleSelectChange("category", value)}
                   required
-                  value={formData.artist_id}
-                  onChange={handleInputChange}
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                 >
-                  <option value="">Select an artist</option>
-                  {artists.map((artist) => (
-                    <option key={artist.id} value={artist.id}>
-                      {artist.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
 
-            <div className="sm:col-span-3">
-              <label htmlFor="collection_id" className="block text-sm font-medium text-gray-700">
-                Collection
-              </label>
-              <div className="mt-1">
-                <select
-                  id="collection_id"
-                  name="collection_id"
-                  value={formData.collection_id}
-                  onChange={handleInputChange}
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                >
-                  <option value="">Select a collection</option>
-                  {collections.map((collection) => (
-                    <option key={collection.id} value={collection.id}>
-                      {collection.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="space-y-2">
+                <Label htmlFor="year">Year</Label>
+                <Input id="year" name="year" value={formData.year} onChange={handleInputChange} />
               </div>
-            </div>
 
-            <div className="sm:col-span-3">
-              <label htmlFor="year" className="block text-sm font-medium text-gray-700">
-                Year
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  name="year"
-                  id="year"
-                  value={formData.year}
-                  onChange={handleInputChange}
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
+              <div className="space-y-2">
+                <Label htmlFor="medium">Medium</Label>
+                <Input id="medium" name="medium" value={formData.medium} onChange={handleInputChange} />
               </div>
-            </div>
 
-            <div className="sm:col-span-3">
-              <label htmlFor="medium" className="block text-sm font-medium text-gray-700">
-                Medium
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  name="medium"
-                  id="medium"
-                  value={formData.medium}
-                  onChange={handleInputChange}
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-3">
-              <label htmlFor="dimensions" className="block text-sm font-medium text-gray-700">
-                Dimensions
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  name="dimensions"
+              <div className="space-y-2">
+                <Label htmlFor="dimensions">Dimensions</Label>
+                <Input
                   id="dimensions"
+                  name="dimensions"
                   value={formData.dimensions}
                   onChange={handleInputChange}
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  placeholder="e.g., 24 x 36 inches"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  placeholder="e.g., $1,200"
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-6">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <div className="mt-1">
-                <textarea
-                  id="description"
-                  name="description"
-                  rows={4}
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                ></textarea>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={5}
+              />
             </div>
 
-            <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">Artwork Image</label>
-              <div className="mt-1 flex items-center">
-                {imagePreview ? (
-                  <div className="relative">
-                    <img
-                      src={imagePreview || "/placeholder.svg"}
-                      alt="Artwork preview"
-                      className="h-32 w-32 object-cover rounded-md"
+            <div className="space-y-2">
+              <Label>Artwork Image</Label>
+              <div className="flex flex-col gap-4">
+                {formData.imageUrl && (
+                  <div className="relative w-48 h-48 border rounded-md overflow-hidden">
+                    <Image
+                      src={formData.imageUrl || "/placeholder.svg"}
+                      alt={formData.title}
+                      fill
+                      className="object-cover"
                     />
-                    <button
+                    <Button
                       type="button"
-                      onClick={() => {
-                        setImagePreview(null)
-                        setImageFile(null)
-                        setFormData((prev) => ({ ...prev, image_url: "" }))
-                      }}
-                      className="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full p-1"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => setFormData((prev) => ({ ...prev, imageUrl: "" }))}
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                ) : (
-                  <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                    <div className="space-y-1 text-center">
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <div className="flex text-sm text-gray-600">
-                        <label
-                          htmlFor="image-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                        >
-                          <span>Upload an image</span>
-                          <input
-                            id="image-upload"
-                            name="image-upload"
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={handleImageChange}
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
+                )}
+
+                {!formData.imageUrl && (
+                  <div className="flex items-center justify-center w-full">
+                    <label
+                      htmlFor="image"
+                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 mb-4 text-gray-500" />
+                        <p className="mb-2 text-sm text-gray-500">
+                          <span className="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500">PNG, JPG or WEBP (MAX. 5MB)</p>
                       </div>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                    </div>
+                      <Input id="image" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                    </label>
+                  </div>
+                )}
+
+                {imageFile && (
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm">{imageFile.name}</div>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => setImageFile(null)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+
+                {isUploading && (
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="bg-primary h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
                   </div>
                 )}
               </div>
             </div>
-
-            <div className="sm:col-span-6">
-              <div className="flex items-center">
-                <input
-                  id="featured"
-                  name="featured"
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, featured: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-                  Feature this artwork on the homepage
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button type="button" variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSaving || isUploading}>
               {isSaving ? (
                 <>
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
-                <>
-                  <Save className="h-5 w-5 mr-2" />
-                  Save Artwork
-                </>
+                "Save Artwork"
               )}
-            </button>
-          </div>
-        </form>
-      </div>
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
+
+      <AlertDialog open={discardDialogOpen} onOpenChange={setDiscardDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard changes?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to discard them?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => router.push("/admin/artworks")}>Discard</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
