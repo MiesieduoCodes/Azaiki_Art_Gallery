@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getDatabase, ref, onValue } from "firebase/database";
-import { database } from "@/lib/firebase/config"; // Import the initialized database
+import { database } from "@/lib/firebase/config"; // Ensure this is imported correctly
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";

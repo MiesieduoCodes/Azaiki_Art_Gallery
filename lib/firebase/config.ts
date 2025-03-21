@@ -1,7 +1,6 @@
-import { initializeApp } from "firebase/app"
-import { getDatabase } from "firebase/database"
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 
-// Your Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -10,11 +9,13 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-}
+};
+
+// Log Firebase config for debugging
+console.log("Firebase Config:", firebaseConfig);
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig)
-const database = getDatabase(app)
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-export { app, database }
-
+export { app, database };
