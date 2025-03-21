@@ -1,107 +1,226 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { collection, getDocs, query, orderBy } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { ref, onValue } from "firebase/database"; // Use Realtime Database methods
+import { database } from "@/lib/firebase/config"; // Import the initialized database
+import Image from "next/image";
+import Link from "next/link";
+import { Search, Filter } from "lucide-react";
 
 interface Artist {
-  id: string
-  name: string
-  bio: string
-  nationality: string
-  imageUrl: string
+  id: string;
+  name: string;
+  bio: string;
+  nationality: string;
+  imageUrl: string;
+  specialty?: string;
+  featured?: boolean;
 }
 
 export default function ArtistsPage() {
-  const [artists, setArtists] = useState<Artist[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   useEffect(() => {
-    const fetchArtists = async () => {
-      try {
-        const artistsQuery = query(collection(db, "artists"), orderBy("name"))
-        const snapshot = await getDocs(artistsQuery)
+    const fetchArtists = () => {
+      const artistsRef = ref(database, "artists"); // Reference to the "artists" node in Realtime Database
 
-        const fetchedArtists = snapshot.docs.map((doc) => {
-          const data = doc.data()
-          return {
-            id: doc.id,
-            name: data.name || "",
-            bio: data.bio || "",
-            nationality: data.nationality || "",
-            imageUrl: data.imageUrl || "",
-          }
-        })
+      // Listen for changes in the "artists" node
+      onValue(artistsRef, (snapshot) => {
+        const data = snapshot.val(); // Get the data from the snapshot
+        if (data) {
+          // Convert the nested object into an array of artists
+          const fetchedArtists = Object.keys(data).map((key) => ({
+            id: key,
+            name: data[key].name || "",
+            bio: data[key].bio || "",
+            nationality: data[key].country || "", // Assuming "country" is the field in your database
+            imageUrl: data[key].image || "/placeholder.svg",
+            specialty: data[key].specialty || "",
+            featured: data[key].featured || false,
+          }));
+          setArtists(fetchedArtists);
+        }
+        setIsLoading(false);
+      }, (error) => {
+        console.error("Error fetching artists:", error);
+        setIsLoading(false);
+      });
+    };
 
-        setArtists(fetchedArtists)
-      } catch (error) {
-        console.error("Error fetching artists:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+    fetchArtists();
+  }, []);
 
-    fetchArtists()
-  }, [])
+  const totalPages = Math.ceil(artists.length / itemsPerPage);
+  const currentArtists = artists.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-12">
-        <h1 className="text-3xl font-bold mb-8">Artists</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="rounded-lg overflow-hidden">
-              <div className="h-64 bg-gray-200 animate-pulse" />
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="h-3 bg-gray-100 rounded animate-pulse w-2/3" />
+      <div className="bg-white">
+        {/* Hero Section */}
+        <section className="bg-blue-700 text-white pt-36 pb-10">
+          <div className="container-custom">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Artists</h1>
+            <p className="text-xl text-blue-100 max-w-3xl">
+              Discover the talented artists whose works are showcased in our collections and exhibitions.
+            </p>
+          </div>
+        </section>
+
+        {/* Loading Skeleton */}
+        <div className="container-custom py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white rounded-lg overflow-hidden shadow-md">
+                <div className="relative h-64 bg-gray-200 animate-pulse" />
+                <div className="p-6">
+                  <div className="h-6 bg-gray-200 rounded animate-pulse mb-2" />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="container mx-auto py-12">
-      <h1 className="text-3xl font-bold mb-8">Artists</h1>
+    <div className="bg-white">
+      {/* Hero Section */}
+      <section className="bg-blue-700 text-white pt-36 pb-10">
+        <div className="container-custom">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Featured Artists</h1>
+          <p className="text-xl text-blue-100 max-w-3xl">
+            Discover the talented artists whose works are showcased in our collections and exhibitions.
+          </p>
+        </div>
+      </section>
 
-      {artists.length === 0 ? (
-        <p className="text-center py-12 text-gray-500">No artists found.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {artists.map((artist) => (
-            <Link href={`/artists/${artist.id}`} key={artist.id}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
-                <div className="relative h-64 w-full">
-                  {artist.imageUrl ? (
+      {/* Featured Artists */}
+      <section className="py-12">
+        <div className="container-custom">
+          <h2 className="section-subtitle mb-8">Featured Artists</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {artists
+              .filter((artist) => artist.featured)
+              .map((artist) => (
+                <Link key={artist.id} href={`/artists/${artist.id}`} className="group">
+                  <div className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1">
+                    <div className="relative h-64">
+                      <Image
+                        src={artist.imageUrl}
+                        alt={artist.name}
+                        fill
+                        className="object-cover"
+                      />
+                      {artist.featured && (
+                        <div className="absolute top-0 right-0 bg-blue-700 text-white text-xs font-bold px-2 py-1">
+                          Featured
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-blue-900 mb-1">{artist.name}</h3>
+                      <p className="text-blue-700 mb-2">{artist.specialty}</p>
+                      <p className="text-gray-600 text-sm mb-3">{artist.nationality}</p>
+                      <p className="text-gray-700 text-sm line-clamp-3">{artist.bio}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+          </div>
+        </div>
+      </section>
+
+      {/* All Artists */}
+      <section className="py-12 bg-gray-50">
+        <div className="container-custom">
+          <h2 className="section-subtitle mb-8">All Artists</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {currentArtists.map((artist) => (
+              <Link key={artist.id} href={`/artists/${artist.id}`} className="group">
+                <div className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1">
+                  <div className="relative h-64">
                     <Image
-                      src={artist.imageUrl || "/placeholder.svg"}
+                      src={artist.imageUrl}
                       alt={artist.name}
                       fill
                       className="object-cover"
                     />
-                  ) : (
-                    <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-gray-400">{artist.name.charAt(0)}</span>
-                    </div>
-                  )}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-blue-900 mb-1">{artist.name}</h3>
+                    <p className="text-blue-700 mb-2">{artist.specialty}</p>
+                    <p className="text-gray-600 text-sm">{artist.nationality}</p>
+                  </div>
                 </div>
-                <CardContent className="p-4">
-                  <h2 className="text-xl font-semibold">{artist.name}</h2>
-                  {artist.nationality && <p className="text-gray-600">{artist.nationality}</p>}
-                  {artist.bio && <p className="mt-2 text-gray-700 line-clamp-3">{artist.bio}</p>}
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
+              </Link>
+            ))}
+          </div>
 
+          {/* Pagination */}
+          <div className="mt-12 flex justify-center">
+            <nav className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`px-3 py-1 border border-gray-300 rounded-md ${
+                    currentPage === index + 1
+                      ? "bg-blue-700 text-white"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      {/* Become an Artist */}
+      <section className="py-16 bg-blue-700 text-white">
+        <div className="container-custom">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Are You an Artist?</h2>
+            <p className="text-xl text-blue-100 mb-8">
+              We're always looking for new talent to showcase in our gallery. If you're interested in exhibiting your
+              work, we'd love to hear from you.
+            </p>
+            <Link href="/contact" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
+              Submit Your Portfolio
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

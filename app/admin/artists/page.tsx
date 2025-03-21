@@ -1,208 +1,222 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { collection, getDocs, deleteDoc, doc, query, orderBy } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import type React from "react"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Plus, Pencil, Trash2, Search } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
+import Link from "next/link"
 import Image from "next/image"
+import { useFirebase } from "@/contexts/firebase-context"
+import { Pencil, Trash2, Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
-interface Artist {
-  id: string
-  name: string
-  bio: string
-  imageUrl: string
-  artworksCount?: number
-}
+export default function ArtistsAdmin() {
+  const { artists, addArtist, deleteArtist, loading } = useFirebase()
+  const { toast } = useToast()
+  const [name, setName] = useState("")
+  const [specialty, setSpecialty] = useState("")
+  const [bio, setBio] = useState("")
+  const [image, setImage] = useState("")
+  const [country, setCountry] = useState("")
+  const [featured, setFeatured] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-export default function ArtistsPage() {
-  const [artists, setArtists] = useState<Artist[]>([])
-  const [filteredArtists, setFilteredArtists] = useState<Artist[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [artistToDelete, setArtistToDelete] = useState<string | null>(null)
-  const router = useRouter()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
 
-  useEffect(() => {
-    fetchArtists()
-  }, [])
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredArtists(artists)
-    } else {
-      const lowercasedQuery = searchQuery.toLowerCase()
-      const filtered = artists.filter(
-        (artist) =>
-          artist.name.toLowerCase().includes(lowercasedQuery) || artist.bio.toLowerCase().includes(lowercasedQuery),
-      )
-      setFilteredArtists(filtered)
-    }
-  }, [searchQuery, artists])
-
-  const fetchArtists = async () => {
     try {
-      const artistsQuery = query(collection(db, "artists"), orderBy("name"))
-      const snapshot = await getDocs(artistsQuery)
-
-      const fetchedArtists: Artist[] = snapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          }) as Artist,
-      )
-
-      // Get artwork counts for each artist
-      const artworksSnapshot = await getDocs(collection(db, "artworks"))
-      const artworks = artworksSnapshot.docs.map((doc) => doc.data())
-
-      const artistsWithCounts = fetchedArtists.map((artist) => {
-        const count = artworks.filter((artwork) => artwork.artistId === artist.id).length
-        return { ...artist, artworksCount: count }
+      await addArtist({
+        name,
+        specialty,
+        bio,
+        image,
+        country,
+        featured,
       })
 
-      setArtists(artistsWithCounts)
-      setFilteredArtists(artistsWithCounts)
+      setName("")
+      setSpecialty("")
+      setBio("")
+      setImage("")
+      setCountry("")
+      setFeatured(false)
+
+      toast({
+        title: "Success",
+        description: "Artist has been created",
+        variant: "default",
+      })
     } catch (error) {
-      console.error("Error fetching artists:", error)
+      console.error("Error adding artist:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create artist",
+        variant: "destructive",
+      })
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
-  const handleDelete = async () => {
-    if (!artistToDelete) return
-
-    try {
-      await deleteDoc(doc(db, "artists", artistToDelete))
-      setArtists(artists.filter((artist) => artist.id !== artistToDelete))
-      setFilteredArtists(filteredArtists.filter((artist) => artist.id !== artistToDelete))
-    } catch (error) {
-      console.error("Error deleting artist:", error)
-    } finally {
-      setDeleteDialogOpen(false)
-      setArtistToDelete(null)
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this artist? All associated artworks will also be deleted.")) {
+      try {
+        await deleteArtist(id)
+        toast({
+          title: "Success",
+          description: "Artist has been deleted",
+          variant: "default",
+        })
+      } catch (error) {
+        console.error("Error deleting artist:", error)
+        toast({
+          title: "Error",
+          description: "Failed to delete artist",
+          variant: "destructive",
+        })
+      }
     }
   }
 
-  const confirmDelete = (id: string) => {
-    const artist = artists.find((a) => a.id === id)
-    if (artist && artist.artworksCount && artist.artworksCount > 0) {
-      alert(`Cannot delete artist with ${artist.artworksCount} artworks. Please reassign or delete the artworks first.`)
-      return
-    }
-
-    setArtistToDelete(id)
-    setDeleteDialogOpen(true)
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading artists...</span>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Artists</h1>
-        <Button onClick={() => router.push("/admin/artists/new")}>
-          <Plus className="mr-2 h-4 w-4" /> Add Artist
-        </Button>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Artists Management</h1>
+
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-1">
+                Name
+              </label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
+
+            <div>
+              <label htmlFor="specialty" className="block text-sm font-medium mb-1">
+                Specialty
+              </label>
+              <Input
+                id="specialty"
+                value={specialty}
+                onChange={(e) => setSpecialty(e.target.value)}
+                placeholder="Contemporary, Abstract, etc."
+              />
+            </div>
+
+            <div>
+              <label htmlFor="country" className="block text-sm font-medium mb-1">
+                Country
+              </label>
+              <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} />
+            </div>
+
+            <div>
+              <label htmlFor="image" className="block text-sm font-medium mb-1">
+                Image URL
+              </label>
+              <Input
+                id="image"
+                value={image}
+                onChange={(e) => setImage(e.target.value)}
+                placeholder="/images/artist.jpg"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="bio" className="block text-sm font-medium mb-1">
+                Biography
+              </label>
+              <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} rows={4} required />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="featured"
+                checked={featured}
+                onCheckedChange={(checked) => setFeatured(checked as boolean)}
+              />
+              <label
+                htmlFor="featured"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Featured Artist
+              </label>
+            </div>
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Add Artist"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <h2 className="text-2xl font-bold mb-4">Artists List</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {artists.map((artist) => (
+          <Card key={artist.id} className="overflow-hidden">
+            <div className="relative aspect-video w-full overflow-hidden">
+              {artist.image ? (
+                <Image
+                  src={artist.image || "/placeholder.svg?height=400&width=400"}
+                  alt={artist.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">No Image</div>
+              )}
+            </div>
+            <CardContent className="p-4">
+              <h3 className="text-xl font-semibold mb-2">{artist.name}</h3>
+              {artist.specialty && <p className="text-sm text-muted-foreground mb-1">{artist.specialty}</p>}
+              {artist.country && <p className="text-sm text-muted-foreground mb-2">{artist.country}</p>}
+              <p className="text-sm line-clamp-3 mb-4">{artist.bio}</p>
+              {artist.featured && <p className="text-xs text-primary mb-4">Featured Artist</p>}
+              <div className="flex gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/admin/artists/${artist.id}`}>
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Edit
+                  </Link>
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => artist.id && handleDelete(artist.id)}>
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search artists..."
-          className="pl-10"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      {isLoading ? (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      ) : filteredArtists.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          {searchQuery ? "No artists found matching your search." : "No artists found. Add some!"}
-        </div>
-      ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Bio</TableHead>
-                <TableHead>Artworks</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredArtists.map((artist) => (
-                <TableRow key={artist.id}>
-                  <TableCell>
-                    <div className="relative h-16 w-16 rounded-full overflow-hidden">
-                      {artist.imageUrl ? (
-                        <Image
-                          src={artist.imageUrl || "/placeholder.svg"}
-                          alt={artist.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400 text-xl font-bold">{artist.name.charAt(0)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">{artist.name}</TableCell>
-                  <TableCell className="max-w-xs truncate">{artist.bio}</TableCell>
-                  <TableCell>{artist.artworksCount || 0}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="icon" onClick={() => router.push(`/admin/artists/${artist.id}`)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={() => confirmDelete(artist.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      {artists.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No artists found. Add your first artist using the form above.</p>
         </div>
       )}
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the artist from the database.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

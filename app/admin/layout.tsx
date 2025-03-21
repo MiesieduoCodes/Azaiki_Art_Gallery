@@ -1,11 +1,9 @@
 "use client"
-
 import type React from "react"
-
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
-import { AuthProvider } from "@/contexts/auth-context"
+import { useAuth } from "@/contexts/firebase-context"
+import { AuthProvider } from "@/contexts/firebase-context"
 import { Button } from "@/components/ui/button"
 import { LayoutDashboard, ImageIcon, Users, LogOut, Menu } from "lucide-react"
 import Link from "next/link"

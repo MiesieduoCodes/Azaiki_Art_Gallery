@@ -1,177 +1,129 @@
 "use client"
 
+import { useParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { useFirebase } from "@/contexts/firebase-context"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
+import Link from "next/link"
 
-interface Artwork {
-  id: string
-  title: string
-  artist: string
-  artistId: string
-  category: string
-  description: string
-  year: string
-  medium: string
-  dimensions: string
-  price: string
-  imageUrl: string
-}
-
-export default function ArtworkDetailPage({ params }: { params: { id: string } }) {
-  const [artwork, setArtwork] = useState<Artwork | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default function ArtworkPage() {
+  const { id } = useParams()
+  const router = useRouter()
+  const { getArtworkById, getArtistById, loading } = useFirebase()
+  const [artwork, setArtwork] = useState<any>(null)
+  const [artist, setArtist] = useState<any>(null)
 
   useEffect(() => {
-    const fetchArtwork = async () => {
-      try {
-        const artworkDoc = await getDoc(doc(db, "artworks", params.id))
+    if (!loading && id) {
+      const foundArtwork = getArtworkById(id as string)
+      if (foundArtwork) {
+        setArtwork(foundArtwork)
 
-        if (!artworkDoc.exists()) {
-          setError("Artwork not found")
-          return
-        }
-
-        const data = artworkDoc.data()
-
-        // Get artist name
-        let artistName = "Unknown Artist"
-        if (data.artistId) {
-          const artistDoc = await getDoc(doc(db, "artists", data.artistId))
-          if (artistDoc.exists()) {
-            artistName = artistDoc.data().name
+        if (foundArtwork.artistId) {
+          const foundArtist = getArtistById(foundArtwork.artistId)
+          if (foundArtist) {
+            setArtist(foundArtist)
           }
         }
-
-        setArtwork({
-          id: artworkDoc.id,
-          title: data.title || "",
-          artist: artistName,
-          artistId: data.artistId || "",
-          category: data.category || "",
-          description: data.description || "",
-          year: data.year || "",
-          medium: data.medium || "",
-          dimensions: data.dimensions || "",
-          price: data.price || "",
-          imageUrl: data.imageUrl || "",
-        })
-      } catch (error) {
-        console.error("Error fetching artwork:", error)
-        setError("Failed to load artwork")
-      } finally {
-        setIsLoading(false)
+      } else {
+        router.push("/gallery")
       }
     }
+  }, [id, loading, getArtworkById, getArtistById, router])
 
-    fetchArtwork()
-  }, [params.id])
-
-  if (isLoading) {
+  if (loading || !artwork) {
     return (
-      <div className="container mx-auto py-12">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-8" />
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="w-full md:w-1/2 h-96 bg-gray-200 rounded" />
-            <div className="w-full md:w-1/2 space-y-4">
-              <div className="h-6 bg-gray-200 rounded w-3/4" />
-              <div className="h-4 bg-gray-100 rounded w-1/2" />
-              <div className="h-4 bg-gray-100 rounded w-1/4" />
-              <div className="h-32 bg-gray-100 rounded mt-8" />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error || !artwork) {
-    return (
-      <div className="container mx-auto py-12">
-        <Link href="/gallery">
-          <Button variant="outline" size="sm" className="mb-8">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
-          </Button>
-        </Link>
-        <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">{error || "Artwork not found"}</h1>
-          <p className="text-gray-600">The artwork you're looking for could not be found.</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading artwork...</span>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto py-12">
-      <Link href="/gallery">
-        <Button variant="outline" size="sm" className="mb-8">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gallery
-        </Button>
-      </Link>
+    <div className="container mx-auto py-16 px-4">
+      <Button variant="outline" asChild className="mb-8">
+        <Link href="/gallery">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Gallery
+        </Link>
+      </Button>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/2">
-          <div className="relative aspect-square w-full rounded-lg overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="relative aspect-square w-full overflow-hidden rounded-lg">
+          {artwork.imageUrl ? (
             <Image
-              src={artwork.imageUrl || "/placeholder.svg?height=800&width=800"}
+              src={artwork.imageUrl || "/placeholder.svg"}
               alt={artwork.title}
               fill
               className="object-contain"
               priority
             />
-          </div>
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">No Image</div>
+          )}
         </div>
 
-        <div className="w-full md:w-1/2 space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">{artwork.title}</h1>
-            <Link href={`/artists/${artwork.artistId}`} className="text-xl text-primary hover:underline">
-              {artwork.artist}
-            </Link>
-            <div className="flex flex-wrap gap-x-2 gap-y-1 mt-2 text-sm text-gray-600">
-              {artwork.year && <span>{artwork.year}</span>}
-              {artwork.medium && (
-                <>
-                  <span>•</span>
-                  <span>{artwork.medium}</span>
-                </>
-              )}
-              {artwork.dimensions && (
-                <>
-                  <span>•</span>
-                  <span>{artwork.dimensions}</span>
-                </>
-              )}
-              {artwork.category && (
-                <>
-                  <span>•</span>
-                  <span>{artwork.category}</span>
-                </>
-              )}
-            </div>
+        <div>
+          <h1 className="text-3xl font-bold mb-2">{artwork.title}</h1>
+          <p className="text-xl mb-4">
+            By{" "}
+            {artist ? (
+              <Link href={`/artists/${artist.id}`} className="hover:underline font-medium">
+                {artist.name}
+              </Link>
+            ) : (
+              artwork.artistName || "Unknown Artist"
+            )}
+          </p>
+
+          {artwork.year && <p className="text-lg mb-6">Created in {artwork.year}</p>}
+
+          <div className="mb-8">
+            <p className="whitespace-pre-line">{artwork.description}</p>
           </div>
 
-          {artwork.description && (
-            <div className="prose max-w-none">
-              <p>{artwork.description}</p>
-            </div>
-          )}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            {artwork.medium && (
+              <div>
+                <h3 className="font-semibold text-sm text-muted-foreground">Medium</h3>
+                <p>{artwork.medium}</p>
+              </div>
+            )}
 
-          {artwork.price && (
-            <div className="pt-4 border-t">
-              <div className="text-lg font-medium">Price: {artwork.price}</div>
-            </div>
-          )}
+            {artwork.dimension && (
+              <div>
+                <h3 className="font-semibold text-sm text-muted-foreground">Dimensions</h3>
+                <p>{artwork.dimension}</p>
+              </div>
+            )}
 
-          <div className="pt-6">
-            <Button size="lg">Inquire About This Piece</Button>
+            {artwork.category && (
+              <div>
+                <h3 className="font-semibold text-sm text-muted-foreground">Category</h3>
+                <p>{artwork.category.charAt(0).toUpperCase() + artwork.category.slice(1).replace("-", " ")}</p>
+              </div>
+            )}
+
+            {artwork.price && (
+              <div>
+                <h3 className="font-semibold text-sm text-muted-foreground">Price</h3>
+                <p>${artwork.price.toLocaleString()}</p>
+              </div>
+            )}
           </div>
+
+          {artist && (
+            <div className="mt-8 p-6 bg-muted rounded-lg">
+              <h2 className="text-xl font-bold mb-4">About the Artist</h2>
+              <p className="line-clamp-4">{artist.bio}</p>
+              <Link href={`/artists/${artist.id}`} className="text-primary hover:underline block mt-4">
+                View Artist Profile
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

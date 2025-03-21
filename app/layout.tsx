@@ -1,10 +1,9 @@
 import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { AuthProvider } from "@/contexts/auth-context"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -54,13 +53,12 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/lufga" />
       </head>
       <body className={inter.className}>
-        <AuthProvider>
           <div className="min-h-screen flex flex-col bg-white">
             <Navbar />
             <main className="flex-grow">{children}</main>
             <Footer />
           </div>
-        </AuthProvider>
+
       </body>
     </html>
   )

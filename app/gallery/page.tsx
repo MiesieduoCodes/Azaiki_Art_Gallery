@@ -1,124 +1,228 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { collection, getDocs, query, orderBy } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { database } from "@/lib/firebase/config";
+import Image from "next/image";
+import Link from "next/link";
 
 interface Artwork {
-  id: string
-  title: string
-  artist: string
-  artistId: string
-  category: string
-  imageUrl: string
-  year: string
-  medium: string
+  id: string;
+  title: string;
+  artist: string;
+  artistId: string;
+  category: string;
+  imageUrl: string;
+  year: string;
+  medium: string;
 }
 
 export default function GalleryPage() {
-  const [artworks, setArtworks] = useState<Artwork[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
         // Get artworks
-        const artworksQuery = query(collection(db, "artworks"), orderBy("createdAt", "desc"))
-        const artworksSnapshot = await getDocs(artworksQuery)
+        const artworksQuery = query(collection(database, "artworks"), orderBy("createdAt", "desc"));
+        const artworksSnapshot = await getDocs(artworksQuery);
 
         // Get artists for lookup
-        const artistsSnapshot = await getDocs(collection(db, "artists"))
-        const artistsMap = new Map()
+        const artistsSnapshot = await getDocs(collection(database, "artists"));
+        const artistsMap = new Map();
         artistsSnapshot.docs.forEach((doc) => {
-          artistsMap.set(doc.id, doc.data().name)
-        })
+          artistsMap.set(doc.id, doc.data().name);
+        });
 
         // Map artworks with artist names
         const fetchedArtworks = artworksSnapshot.docs.map((doc) => {
-          const data = doc.data()
+          const data = doc.data();
           return {
             id: doc.id,
             title: data.title || "",
             artistId: data.artistId || "",
             artist: artistsMap.get(data.artistId) || "Unknown Artist",
             category: data.category || "",
-            imageUrl: data.imageUrl || "",
+            imageUrl: data.imageUrl || "/placeholder.svg",
             year: data.year || "",
             medium: data.medium || "",
-          }
-        })
+          };
+        });
 
-        setArtworks(fetchedArtworks)
+        setArtworks(fetchedArtworks);
       } catch (error) {
-        console.error("Error fetching gallery data:", error)
+        console.error("Error fetching gallery data:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchArtworks()
-  }, [])
+    fetchArtworks();
+  }, []);
+
+  const totalPages = Math.ceil(artworks.length / itemsPerPage);
+  const currentArtworks = artworks.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-12">
-        <h1 className="text-3xl font-bold mb-8">Gallery</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="rounded-lg overflow-hidden">
-              <div className="h-64 bg-gray-200 animate-pulse" />
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="h-3 bg-gray-100 rounded animate-pulse w-2/3" />
+      <div className="bg-white">
+        {/* Hero Section */}
+        <section className="bg-blue-700 text-white pt-36 pb-10">
+          <div className="container-custom">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Art Gallery</h1>
+            <p className="text-xl text-blue-100 max-w-3xl">
+              Explore our extensive collection of artworks from various periods, styles, and cultures.
+            </p>
+          </div>
+        </section>
+
+        {/* Loading Skeleton */}
+        <div className="container-custom py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="rounded-lg overflow-hidden">
+                <div className="h-64 bg-gray-200 animate-pulse" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-3 bg-gray-100 rounded animate-pulse w-2/3" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="container mx-auto py-12">
-      <h1 className="text-3xl font-bold mb-8">Gallery</h1>
-
-      {artworks.length === 0 ? (
-        <p className="text-center py-12 text-gray-500">No artworks found.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {artworks.map((artwork) => (
-            <Link href={`/gallery/${artwork.id}`} key={artwork.id}>
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative h-64 w-full">
-                  <Image
-                    src={artwork.imageUrl || "/placeholder.svg?height=400&width=600"}
-                    alt={artwork.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardContent className="p-4">
-                  <h2 className="text-xl font-semibold">{artwork.title}</h2>
-                  <p className="text-gray-600">{artwork.artist}</p>
-                  <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                    <span>{artwork.year}</span>
-                    {artwork.medium && (
-                      <>
-                        <span>•</span>
-                        <span>{artwork.medium}</span>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+    <div className="bg-white">
+      {/* Hero Section */}
+      <section className="bg-blue-700 text-white pt-36 pb-10">
+        <div className="container-custom">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Art Gallery</h1>
+          <p className="text-xl text-blue-100 max-w-3xl">
+            Explore our extensive collection of artworks from various periods, styles, and cultures.
+          </p>
         </div>
-      )}
-    </div>
-  )
-}
+      </section>
 
+      {/* Gallery Grid */}
+      <section className="py-12">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentArtworks.map((artwork) => (
+              <div key={artwork.id} className="group">
+                <Link href={`/gallery/${artwork.id}`} className="block">
+                  <div className="relative overflow-hidden rounded-lg shadow-md aspect-square">
+                    <Image
+                      src={artwork.imageUrl}
+                      alt={artwork.title}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="text-lg font-bold">{artwork.title}</h3>
+                        <p className="text-sm text-gray-200">{artwork.artist}</p>
+                        <span className="inline-block mt-2 text-xs bg-blue-700 px-2 py-1 rounded-full">
+                          {artwork.category}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <div className="mt-12 flex justify-center">
+            <nav className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`px-3 py-1 border border-gray-300 rounded-md ${
+                    currentPage === index + 1
+                      ? "bg-blue-700 text-white"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Collections */}
+      <section className="py-12 bg-gray-50">
+        <div className="container-custom">
+          <h2 className="section-title text-center">Featured Collections</h2>
+          <p className="text-center text-gray-600 max-w-3xl mx-auto mb-8">
+            Explore our curated collections highlighting specific themes, periods, and artistic movements.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "African Masterpieces",
+                image: "/images/IMG-20250314-WA0052.jpg",
+                link: "/african",
+              },
+              {
+                title: "Digital Revolution",
+                image: "/images/IMG-20250314-WA0054.jpg",
+                link: "/digital",
+              },
+              {
+                title: "Niger Delta Heritage",
+                image: "/images/nigerdelta.jpg",
+                link: "/niger-delta",
+              },
+            ].map((collection, index) => (
+              <Link key={index} href={collection.link} className="block group">
+                <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
+                  <Image
+                    src={collection.image}
+                    alt={collection.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                    <h3 className="text-white text-xl font-bold p-6">{collection.title}</h3>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
