@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getDatabase, ref, get } from "firebase/database";
+import { ref, get } from "firebase/database";
+import { database } from "@/lib/firebase/config"; // Import the initialized database
 import Image from "next/image";
 import Link from "next/link";
 
@@ -23,8 +24,7 @@ export default function GalleryPage() {
 
   useEffect(() => {
     const fetchArtworks = async () => {
-      const db = getDatabase();
-      const artworksRef = ref(db, "artworks");
+      const artworksRef = ref(database, "artworks"); // Use the initialized database
 
       try {
         const snapshot = await get(artworksRef);
