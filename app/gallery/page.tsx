@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { database } from "@/lib/firebase/config";
+import { getDatabase, ref, get } from "firebase/database";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,7 +9,6 @@ interface Artwork {
   id: string;
   title: string;
   artist: string;
-  artistId: string;
   category: string;
   imageUrl: string;
   year: string;
@@ -25,34 +23,26 @@ export default function GalleryPage() {
 
   useEffect(() => {
     const fetchArtworks = async () => {
+      const db = getDatabase();
+      const artworksRef = ref(db, "artworks");
+
       try {
-        // Get artworks
-        const artworksQuery = query(collection(database, "artworks"), orderBy("createdAt", "desc"));
-        const artworksSnapshot = await getDocs(artworksQuery);
-
-        // Get artists for lookup
-        const artistsSnapshot = await getDocs(collection(database, "artists"));
-        const artistsMap = new Map();
-        artistsSnapshot.docs.forEach((doc) => {
-          artistsMap.set(doc.id, doc.data().name);
-        });
-
-        // Map artworks with artist names
-        const fetchedArtworks = artworksSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title || "",
-            artistId: data.artistId || "",
-            artist: artistsMap.get(data.artistId) || "Unknown Artist",
-            category: data.category || "",
-            imageUrl: data.imageUrl || "/placeholder.svg",
-            year: data.year || "",
-            medium: data.medium || "",
-          };
-        });
-
-        setArtworks(fetchedArtworks);
+        const snapshot = await get(artworksRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const fetchedArtworks = Object.entries(data).map(([id, artwork]: [string, any]) => ({
+            id,
+            title: artwork.title || "",
+            artist: artwork.artist || "Unknown Artist",
+            category: artwork.category || "",
+            imageUrl: artwork.image || "/placeholder.svg",
+            year: artwork.year || "",
+            medium: artwork.medium || "",
+          }));
+          setArtworks(fetchedArtworks);
+        } else {
+          console.log("No artworks found.");
+        }
       } catch (error) {
         console.error("Error fetching gallery data:", error);
       } finally {
