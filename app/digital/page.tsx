@@ -1,90 +1,103 @@
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+"use client";
 
-// Sample digital art data
-const digitalArtworks = [
-  {
-    id: 5,
-    title: "Digital Dreams",
-    artist: "Sophia Lee",
-    technique: "3D Rendering",
-    period: "2022",
-    image: "/images/IMG-20250314-WA0081.jpg",
-    description: "An immersive 3D environment exploring the boundaries between reality and digital space.",
-  },
-  {
-    id: 9,
-    title: "Virtual Reality",
-    artist: "Alex Kim",
-    technique: "VR Installation",
-    period: "2023",
-    image: "/images/IMG-20250314-WA0083.jpg",
-    description: "A virtual reality experience that challenges perceptions of physical space.",
-  },
-  {
-    id: 14,
-    title: "Algorithmic Patterns",
-    artist: "Raj Patel",
-    technique: "Generative Art",
-    period: "2021",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Computer-generated patterns created through custom algorithms and code.",
-  },
-  {
-    id: 17,
-    title: "Pixel Portraits",
-    artist: "Emma Wilson",
-    technique: "Digital Painting",
-    period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Contemporary portraits created using digital painting techniques.",
-  },
-  {
-    id: 20,
-    title: "Data Visualization",
-    artist: "Marcus Johnson",
-    technique: "Interactive Media",
-    period: "2023",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "An interactive visualization of climate data transformed into an aesthetic experience.",
-  },
-  {
-    id: 23,
-    title: "Augmented Reality",
-    artist: "Leila Nguyen",
-    technique: "AR Installation",
-    period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "An augmented reality installation that overlays digital elements onto physical spaces.",
-  },
-]
+import { useState, useEffect } from "react";
+import { ref, get } from "firebase/database";
+import { database } from "@/lib/firebase/config"; // Import the initialized database
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-// // Sample techniques data
-// const techniques = [
-//   {
-//     name: "Digital Painting",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Creating artwork using digital tools that simulate traditional painting techniques.",
-//   },
-//   {
-//     name: "3D Modeling & Rendering",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Building three-dimensional digital models and creating realistic or stylized renderings.",
-//   },
-//   {
-//     name: "Generative Art",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Using algorithms, autonomous systems, and AI to create art through code.",
-//   },
-//   {
-//     name: "VR & AR Installations",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Immersive experiences using virtual and augmented reality technologies.",
-//   },
-// ]
+interface Artwork {
+  id: string;
+  title: string;
+  artist: string;
+  technique: string;
+  period: string;
+  imageUrl: string;
+  description: string;
+  category: string;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  specialty: string;
+  country: string;
+  imageUrl: string;
+  featured: boolean;
+  bio: string;
+}
 
 export default function DigitalArt() {
+  const [digitalArtworks, setDigitalArtworks] = useState<Artwork[]>([]);
+  const [digitalArtists, setDigitalArtists] = useState<Artist[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const artworksRef = ref(database, "artworks"); // Reference to the "artworks" node
+      const artistsRef = ref(database, "artists"); // Reference to the "artists" node
+
+      try {
+        // Fetch artworks
+        const artworksSnapshot = await get(artworksRef);
+        if (artworksSnapshot.exists()) {
+          const artworksData = artworksSnapshot.val();
+          const fetchedArtworks = Object.entries(artworksData)
+            .map(([id, artwork]: [string, any]) => ({
+              id,
+              title: artwork.title || "",
+              artist: artwork.artist || "Unknown Artist",
+              technique: artwork.medium || "",
+              period: artwork.year || "",
+              imageUrl: artwork.image || "/placeholder.svg",
+              description: artwork.description || "",
+              category: artwork.category || "",
+            }))
+            .filter((artwork) => artwork.category === "Digital"); // Filter for Digital artworks
+          setDigitalArtworks(fetchedArtworks);
+        } else {
+          console.log("No artworks found.");
+        }
+
+        // Fetch artists
+        const artistsSnapshot = await get(artistsRef);
+        if (artistsSnapshot.exists()) {
+          const artistsData = artistsSnapshot.val();
+          const fetchedArtists = Object.entries(artistsData)
+            .map(([id, artist]: [string, any]) => ({
+              id,
+              name: artist.name || "Unknown Artist",
+              specialty: artist.specialty || "",
+              country: artist.country || "",
+              imageUrl: artist.image || "/placeholder.svg",
+              featured: artist.featured || false,
+              bio: artist.bio || "",
+            }))
+            .filter((artist) => artist.specialty.includes("Digital Art")); // Filter for Digital artists
+          setDigitalArtists(fetchedArtists);
+        } else {
+          console.log("No artists found.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -155,7 +168,7 @@ export default function DigitalArt() {
                 className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -183,45 +196,6 @@ export default function DigitalArt() {
         </div>
       </section>
 
-      {/* Techniques
-      <section className="py-16">
-        <div className="container-custom">
-          <h2 className="section-title text-center mb-4">Explore by Technique</h2>
-          <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-            Discover the diverse digital techniques artists use to create innovative works.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {techniques.map((technique, index) => (
-              <Link
-                key={index}
-                href={`/digital/${technique.name.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and")}`}
-                className="group"
-              >
-                <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  <div className="md:w-2/5 relative h-64 md:h-auto">
-                    <Image
-                      src={technique.image || "/placeholder.svg"}
-                      alt={technique.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="md:w-3/5 p-6">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">{technique.name}</h3>
-                    <p className="text-gray-700 mb-4">{technique.description}</p>
-                    <span className="text-blue-700 font-medium flex items-center group-hover:text-blue-800">
-                      Explore Technique{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
       {/* Collection Highlights */}
       <section className="py-16 bg-gray-50">
         <div className="container-custom">
@@ -231,7 +205,7 @@ export default function DigitalArt() {
             {digitalArtworks.slice(3, 6).map((artwork) => (
               <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
                 <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -258,36 +232,11 @@ export default function DigitalArt() {
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Featured Digital Artists</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: "Sophia Lee",
-                specialty: "3D Art & Animation",
-                country: "South Korea",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Alex Kim",
-                specialty: "VR Installations",
-                country: "United States",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Raj Patel",
-                specialty: "Generative Art",
-                country: "India",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Emma Wilson",
-                specialty: "Digital Painting",
-                country: "Canada",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-            ].map((artist, index) => (
-              <Link key={index} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
+            {digitalArtists.map((artist) => (
+              <Link key={artist.id} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
                   <div className="relative h-64">
-                    <Image src={artist.image || "/placeholder.svg"} alt={artist.name} fill className="object-cover" />
+                    <Image src={artist.imageUrl} alt={artist.name} fill className="object-cover" />
                   </div>
                   <div className="p-6 text-white">
                     <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
@@ -397,6 +346,5 @@ export default function DigitalArt() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

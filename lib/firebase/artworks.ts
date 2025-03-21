@@ -1,6 +1,6 @@
 import { ref, get, set, push, remove, query, orderByChild, limitToLast } from "firebase/database"
 import { database } from "./config"
-import type { Artwork } from "@/types"
+import type { Artwork } from "@/types/index"
 
 const artworksRef = ref(database, "artworks")
 

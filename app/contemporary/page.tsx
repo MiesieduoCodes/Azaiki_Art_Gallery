@@ -1,84 +1,101 @@
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+"use client";
 
-// Sample contemporary art data
-const contemporaryArtworks = [
-  {
-    id: 1,
-    title: "Abstract Harmony",
-    artist: "Elena Rodriguez",
-    period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "This vibrant abstract piece explores the harmony between color and form.",
-  },
-  {
-    id: 8,
-    title: "Modern Reflections",
-    artist: "Sarah Johnson",
-    period: "2021",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "A contemplative exploration of modern identity through reflective surfaces.",
-  },
-  {
-    id: 3,
-    title: "Urban Landscape",
-    artist: "Michael Chen",
-    period: "2023",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "A vibrant depiction of city life with dynamic composition and bold colors.",
-  },
-  {
-    id: 12,
-    title: "Fragmented Reality",
-    artist: "Olivia Martinez",
-    period: "2020",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "An examination of how reality is perceived through fragmented experiences.",
-  },
-  {
-    id: 15,
-    title: "Emotional Geometry",
-    artist: "David Kim",
-    period: "2022",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Geometric shapes conveying complex emotional states through color and form.",
-  },
-  {
-    id: 18,
-    title: "Digital Dystopia",
-    artist: "Alex Wong",
-    period: "2023",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "A commentary on technology's impact on society through contemporary painting.",
-  },
-]
+import { useState, useEffect } from "react";
+import { ref, get } from "firebase/database";
+import { database } from "@/lib/firebase/config"; // Import the initialized database
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-// // Sample themes data
-// const themes = [
-//   {
-//     name: "Abstract Expressionism",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Exploring emotion and spontaneity through non-representational forms.",
-//   },
-//   {
-//     name: "Minimalism",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Stripping art down to its fundamental features and core essence.",
-//   },
-//   {
-//     name: "Pop Art",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Celebrating popular culture and challenging traditional fine art distinctions.",
-//   },
-//   {
-//     name: "Conceptual Art",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Prioritizing ideas and concepts over traditional aesthetic concerns.",
-//   },
-// ]
+interface Artwork {
+  id: string;
+  title: string;
+  artist: string;
+  period: string;
+  imageUrl: string;
+  description: string;
+  category: string;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  specialty: string;
+  country: string;
+  imageUrl: string;
+  featured: boolean;
+  bio: string;
+}
 
 export default function ContemporaryArt() {
+  const [contemporaryArtworks, setContemporaryArtworks] = useState<Artwork[]>([]);
+  const [contemporaryArtists, setContemporaryArtists] = useState<Artist[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const artworksRef = ref(database, "artworks"); // Reference to the "artworks" node
+      const artistsRef = ref(database, "artists"); // Reference to the "artists" node
+
+      try {
+        // Fetch artworks
+        const artworksSnapshot = await get(artworksRef);
+        if (artworksSnapshot.exists()) {
+          const artworksData = artworksSnapshot.val();
+          const fetchedArtworks = Object.entries(artworksData)
+            .map(([id, artwork]: [string, any]) => ({
+              id,
+              title: artwork.title || "",
+              artist: artwork.artist || "Unknown Artist",
+              period: artwork.year || "",
+              imageUrl: artwork.image || "/placeholder.svg",
+              description: artwork.description || "",
+              category: artwork.category || "",
+            }))
+            .filter((artwork) => artwork.category === "Contemporary"); // Filter for Contemporary artworks
+          setContemporaryArtworks(fetchedArtworks);
+        } else {
+          console.log("No artworks found.");
+        }
+
+        // Fetch artists
+        const artistsSnapshot = await get(artistsRef);
+        if (artistsSnapshot.exists()) {
+          const artistsData = artistsSnapshot.val();
+          const fetchedArtists = Object.entries(artistsData)
+            .map(([id, artist]: [string, any]) => ({
+              id,
+              name: artist.name || "Unknown Artist",
+              specialty: artist.specialty || "",
+              country: artist.country || "",
+              imageUrl: artist.image || "/placeholder.svg",
+              featured: artist.featured || false,
+              bio: artist.bio || "",
+            }))
+            .filter((artist) => artist.specialty.includes("Contemporary")); // Filter for Contemporary artists
+          setContemporaryArtists(fetchedArtists);
+        } else {
+          console.log("No artists found.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -148,7 +165,7 @@ export default function ContemporaryArt() {
                 className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -174,40 +191,6 @@ export default function ContemporaryArt() {
         </div>
       </section>
 
-      {/* Themes */}
-      {/* <section className="py-16">
-        <div className="container-custom">
-          <h2 className="section-title text-center mb-4">Explore by Theme</h2>
-          <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-            Discover the diverse approaches and movements within contemporary art.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {themes.map((theme, index) => (
-              <Link
-                key={index}
-                href={`/contemporary/${theme.name.toLowerCase().replace(/\s+/g, "-")}`}
-                className="group"
-              >
-                <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  <div className="md:w-2/5 relative h-64 md:h-auto">
-                    <Image src={theme.image || "/placeholder.svg"} alt={theme.name} fill className="object-cover" />
-                  </div>
-                  <div className="md:w-3/5 p-6">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">{theme.name}</h3>
-                    <p className="text-gray-700 mb-4">{theme.description}</p>
-                    <span className="text-blue-700 font-medium flex items-center group-hover:text-blue-800">
-                      Explore Theme{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
       {/* Collection Highlights */}
       <section className="py-16 bg-gray-50">
         <div className="container-custom">
@@ -217,7 +200,7 @@ export default function ContemporaryArt() {
             {contemporaryArtworks.slice(3, 6).map((artwork) => (
               <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
                 <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -242,36 +225,11 @@ export default function ContemporaryArt() {
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Featured Contemporary Artists</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: "Elena Rodriguez",
-                specialty: "Abstract Expressionism",
-                country: "Spain",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Sarah Johnson",
-                specialty: "Mixed Media",
-                country: "United Kingdom",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Michael Chen",
-                specialty: "Urban Landscapes",
-                country: "United States",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Olivia Martinez",
-                specialty: "Conceptual Art",
-                country: "Mexico",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-            ].map((artist, index) => (
-              <Link key={index} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
+            {contemporaryArtists.map((artist) => (
+              <Link key={artist.id} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
                   <div className="relative h-64">
-                    <Image src={artist.image || "/placeholder.svg"} alt={artist.name} fill className="object-cover" />
+                    <Image src={artist.imageUrl} alt={artist.name} fill className="object-cover" />
                   </div>
                   <div className="p-6 text-white">
                     <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
@@ -381,6 +339,5 @@ export default function ContemporaryArt() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

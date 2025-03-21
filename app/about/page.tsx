@@ -221,7 +221,7 @@ export default function About() {
                   <Phone className="h-6 w-6 mr-3 text-blue-300 flex-shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-lg">Phone</h3>
-                    <p className="text-blue-100">+1 (234) 567-8900</p>
+                    <p className="text-blue-100">+2348141515074, +2348034632325</p>
                   </div>
                 </div>
 
@@ -229,7 +229,7 @@ export default function About() {
                   <Mail className="h-6 w-6 mr-3 text-blue-300 flex-shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-lg">Email</h3>
-                    <p className="text-blue-100">info@artvista.com</p>
+                    <p className="text-blue-100">info@azaikipubliclibrary.org.ng</p>
                   </div>
                 </div>
               </div>

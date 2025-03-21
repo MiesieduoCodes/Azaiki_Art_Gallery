@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { database } from "@/lib/firebase/config"; // Ensure this is imported correctly
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -43,10 +43,8 @@ export default function ArtworkPage() {
       return;
     }
 
-    const db = getDatabase();
-
     // Fetch artwork data
-    const artworkRef = ref(db, `artworks/${id}`);
+    const artworkRef = ref(database, `artworks/${id}`);
     onValue(artworkRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -67,7 +65,7 @@ export default function ArtworkPage() {
 
         // Fetch artist data if artistId exists
         if (fetchedArtwork.artistId) {
-          const artistRef = ref(db, `artists/${fetchedArtwork.artistId}`);
+          const artistRef = ref(database, `artists/${fetchedArtwork.artistId}`);
           onValue(artistRef, (artistSnapshot) => {
             const artistData = artistSnapshot.val();
             if (artistData) {
@@ -104,7 +102,7 @@ export default function ArtworkPage() {
   }
 
   return (
-    <div className="container mx-auto py-16 px-4">
+    <div className="container mx-auto pt-28 py-16 px-4">
       <Button variant="outline" asChild className="mb-8">
         <Link href="/gallery">
           <ArrowLeft className="mr-2 h-4 w-4" />

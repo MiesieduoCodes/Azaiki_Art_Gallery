@@ -1,89 +1,101 @@
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react";
-// Sample African art data
-const africanArtworks = [
-  {
-    id: 1,
-    title: "Another Day Another Tale",
-    artist: "Millicent Osumuo Onuegbu",
-    region: "West Africa",
-    period: "Contemporary",
-    image: "/images/IMG-20250101-WA0024.jpg",
-    description: "This artwork captures a fleeting moment in the everyday journey of two siblings on an errand for their mama. Their...",
-  },
-  {
-    id: 2,
-    title: "Tribal Patterns",
-    artist: "Kwame Osei",
-    region: "Ghana",
-    period: "2010s",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Intricate patterns inspired by traditional Ghanaian textiles and symbols.",
-  },
-  {
-    id: 16,
-    title: "Defined Identity",
-    artist: "Millicent Osumuo Onuegbu",
-    region: "West Africa",
-    period: "Contemporary",
-    image: "/images/IMG-20250101-WA0023.jpg",
-    description: "Defined Identity represents the clarity and strength that comes from embracing one's true self. It is the...",
-  },
-  {
-    id: 11,
-    title: "Ngala - Embracing Beauty and Positivity in Womanhood",
-    artist: "Millicent Osumuo Onuegbu",
-    region: "Nigeria",
-    period: "2023",
-    image: "/images/Ngala.jpg",
-    description: "Millicent's acrylic painting series, Ngala, is a mesmerizing portrayal of a woman's strength and beauty through...",
-  },
-  {
-    id: 5,
-    title: "Urban Africa",
-    artist: "Zainab Musa",
-    region: "North Africa",
-    period: "Contemporary",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "A contemporary look at rapidly changing urban landscapes across North Africa.",
-  },
-  {
-    id: 6,
-    title: "Spirit Dancers",
-    artist: "Kofi Mensah",
-    region: "West Africa",
-    period: "2018",
-    image: "/placeholder.svg?height=600&width=800",
-    description: "Dynamic figures capturing the energy and spirituality of traditional dance.",
-  },
-]
+"use client";
 
-// // Sample regions data
-// const regions = [
-//   {
-//     name: "West Africa",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Featuring art from Nigeria, Ghana, Senegal, and neighboring countries.",
-//   },
-//   {
-//     name: "East Africa",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Showcasing works from Kenya, Ethiopia, Tanzania, and the Horn of Africa.",
-//   },
-//   {
-//     name: "North Africa",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Art from Egypt, Morocco, Algeria, and the Mediterranean coast.",
-//   },
-//   {
-//     name: "Central Africa",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Diverse works from the Congo Basin, Cameroon, and surrounding regions.",
-//   },
-// ]
+import { useState, useEffect } from "react";
+import { ref, get } from "firebase/database";
+import { database } from "@/lib/firebase/config"; // Import the initialized database
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
+interface Artwork {
+  id: string;
+  title: string;
+  artist: string;
+  region: string;
+  period: string;
+  imageUrl: string;
+  description: string;
+  category: string;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  specialty: string;
+  country: string;
+  imageUrl: string;
+  category: string;
+}
 
 export default function AfricanArt() {
+  const [africanArtworks, setAfricanArtworks] = useState<Artwork[]>([]);
+  const [africanArtists, setAfricanArtists] = useState<Artist[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const artworksRef = ref(database, "artworks"); // Reference to the "artworks" node
+      const artistsRef = ref(database, "artists"); // Reference to the "artists" node
+
+      try {
+        // Fetch artworks
+        const artworksSnapshot = await get(artworksRef);
+        if (artworksSnapshot.exists()) {
+          const artworksData = artworksSnapshot.val();
+          const fetchedArtworks = Object.entries(artworksData)
+            .map(([id, artwork]: [string, any]) => ({
+              id,
+              title: artwork.title || "",
+              artist: artwork.artist || "Unknown Artist",
+              region: artwork.region || "",
+              period: artwork.period || "",
+              imageUrl: artwork.image || "/placeholder.svg",
+              description: artwork.description || "",
+              category: artwork.category || "",
+            }))
+            .filter((artwork) => artwork.category === "African"); // Filter for African artworks
+          setAfricanArtworks(fetchedArtworks);
+        } else {
+          console.log("No artworks found.");
+        }
+
+        // Fetch artists
+        const artistsSnapshot = await get(artistsRef);
+        if (artistsSnapshot.exists()) {
+          const artistsData = artistsSnapshot.val();
+          const fetchedArtists = Object.entries(artistsData)
+            .map(([id, artist]: [string, any]) => ({
+              id,
+              name: artist.name || "Unknown Artist",
+              specialty: artist.specialty || "",
+              country: artist.country || "",
+              imageUrl: artist.image || "/placeholder.svg",
+              category: artist.category || "",
+            }))
+            .filter((artist) => artist.category === "African"); // Filter for African artists
+          setAfricanArtists(fetchedArtists);
+        } else {
+          console.log("No artists found.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -152,7 +164,7 @@ export default function AfricanArt() {
                 className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -180,65 +192,35 @@ export default function AfricanArt() {
         </div>
       </section>
 
-      {/* Regions
-      <section className="py-16">
-        <div className="container-custom">
-          <h2 className="section-title text-center mb-4">Explore by Region</h2>
-          <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-            Discover the unique artistic traditions and contemporary expressions from different regions across Africa.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {regions.map((region, index) => (
-              <Link key={index} href={`/african/${region.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
-                <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  <div className="md:w-2/5 relative h-64 md:h-auto">
-                    <Image src={region.image || "/placeholder.svg"} alt={region.name} fill className="object-cover" />
-                  </div>
-                  <div className="md:w-3/5 p-6">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">{region.name}</h3>
-                    <p className="text-gray-700 mb-4">{region.description}</p>
-                    <span className="text-blue-700 font-medium flex items-center group-hover:text-blue-800">
-                      Explore Region{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
-      {/* Collection Highlights */}
-      <section className="py-16 bg-gray-50">
-        <div className="container-custom">
-          <h2 className="section-title text-center mb-12">Collection Highlights</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {africanArtworks.slice(3, 6).map((artwork) => (
-              <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
-                <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
-                  <p className="text-blue-700 mb-1">{artwork.artist}</p>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {artwork.region}, {artwork.period}
-                  </p>
-                  <Link
-                    href={`/gallery/${artwork.id}`}
-                    className="text-blue-700 font-medium flex items-center hover:text-blue-800"
-                  >
-                    View Details <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+       {/* Collection Highlights */}
+         <section className="py-16 bg-gray-50">
+           <div className="container-custom">
+             <h2 className="section-title text-center mb-12">Collection Highlights</h2>
+   
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+               {africanArtworks.slice(3, 6).map((artwork) => (
+                 <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
+                   <div className="relative h-64">
+                     <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                   </div>
+                   <div className="p-6">
+                     <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
+                     <p className="text-blue-700 mb-1">{artwork.artist}</p>
+                     <p className="text-gray-600 text-sm mb-3">
+                       {artwork.material}, {artwork.period}
+                     </p>
+                     <Link
+                       href={`/gallery/${artwork.id}`}
+                       className="text-blue-700 font-medium flex items-center hover:text-blue-800"
+                     >
+                       View Details <ArrowRight className="ml-2 h-4 w-4" />
+                     </Link>
+                   </div>
+                 </div>
+               ))}
+             </div>
+           </div>
+         </section>
 
       {/* Featured Artists */}
       <section className="py-16 bg-blue-700 text-white">
@@ -246,36 +228,11 @@ export default function AfricanArt() {
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Featured African Artists</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: "Amara Nwosu",
-                specialty: "Mixed Media, Sculpture",
-                country: "Nigeria",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Kwame Osei",
-                specialty: "Traditional Art",
-                country: "Ghana",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Ngozi Eze",
-                specialty: "Contemporary Painting",
-                country: "Nigeria",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Tunde Adebayo",
-                specialty: "Niger Delta Art",
-                country: "Nigeria",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-            ].map((artist, index) => (
-              <Link key={index} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
+            {africanArtists.map((artist) => (
+              <Link key={artist.id} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
                   <div className="relative h-64">
-                    <Image src={artist.image || "/placeholder.svg"} alt={artist.name} fill className="object-cover" />
+                    <Image src={artist.imageUrl} alt={artist.name} fill className="object-cover" />
                   </div>
                   <div className="p-6 text-white">
                     <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
@@ -388,6 +345,5 @@ export default function AfricanArt() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

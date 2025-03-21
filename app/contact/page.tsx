@@ -64,8 +64,11 @@ export default function Contact() {
               <Phone className="h-10 w-10 text-blue-700 mb-4" />
               <h3 className="text-xl font-bold text-blue-900 mb-2">Call Us</h3>
               <p className="text-gray-700 mb-2">Have a quick question? Give us a call.</p>
-              <a href="tel:+12345678900" className="text-blue-700 font-medium hover:text-blue-800">
-                +1 (234) 567-8900
+              <a href="tel:+2348141515074" className="text-blue-700 font-medium hover:text-blue-800">
+              +2348141515074
+              </a>
+              <a href="tel:+2348034632325" className="text-blue-700 font-medium hover:text-blue-800">
+              +2348034632325
               </a>
             </div>
 
@@ -74,7 +77,7 @@ export default function Contact() {
               <h3 className="text-xl font-bold text-blue-900 mb-2">Email Us</h3>
               <p className="text-gray-700 mb-2">Send us an email and we'll respond as soon as possible.</p>
               <a href="mailto:info@artvista.com" className="text-blue-700 font-medium hover:text-blue-800">
-                info@artvista.com
+                info@azaikipubliclibrary.org.ng
               </a>
             </div>
 

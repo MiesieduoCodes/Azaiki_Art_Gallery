@@ -66,14 +66,14 @@ export default function ArtistPage() {
     onValue(artworksRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const artistArtworks = Object.keys(data)
-          .filter((key) => data[key].artistId === id)
-          .map((key) => ({
+        const artistArtworks = Object.entries(data)
+          .filter(([key, artwork]: [string, any]) => artwork.artistId === id)
+          .map(([key, artwork]: [string, any]) => ({
             id: key,
-            title: data[key].title || "",
-            description: data[key].description || "",
-            year: data[key].year || "",
-            imageUrl: data[key].imageUrl || "/placeholder.svg",
+            title: artwork.title || "",
+            description: artwork.description || "",
+            year: artwork.year || "",
+            imageUrl: artwork.image || "/placeholder.svg",
           }));
         setArtworks(artistArtworks);
       }

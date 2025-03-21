@@ -1,90 +1,134 @@
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+"use client";
 
-// Sample Niger Delta art data
-const nigerDeltaArtworks = [
-  {
-    id: 7,
-    title: "River Life",
-    artist: "Tunde Adebayo",
-    medium: "Oil on canvas",
-    period: "2021",
-    image: "/images/DSC_1156.jpg",
-    description: "A vibrant depiction of daily life along the Niger Delta waterways.",
-  },
-  {
-    id: 11,
-    title: "Coastal Traditions",
-    artist: "Emmanuel Okon",
-    medium: "Mixed media",
-    period: "2020",
-    image: "/images/DSC_1239.jpg",
-    description: "An exploration of traditional practices in coastal Niger Delta communities.",
-  },
-  {
-    id: 16,
-    title: "Environmental Impact",
-    artist: "Ngozi Eze",
-    medium: "Photography",
-    period: "2022",
-    image: "/images/DSC_1251.jpg",
-    description: "A photographic series documenting environmental challenges in the Niger Delta region.",
-  },
-  {
-    id: 19,
-    title: "Cultural Heritage",
-    artist: "Blessing Okoye",
-    medium: "Textile art",
-    period: "2021",
-    image: "/images/DSC_1253.jpg",
-    description: "Traditional patterns and symbols from Niger Delta cultures reimagined in textile form.",
-  },
-  {
-    id: 22,
-    title: "Mangrove Rhythms",
-    artist: "David Ekpo",
-    medium: "Acrylic on canvas",
-    period: "2023",
-    image: "/images/DSC_1255.jpg",
-    description: "Abstract patterns inspired by the mangrove ecosystems of the Niger Delta.",
-  },
-  {
-    id: 25,
-    title: "Voices of Resistance",
-    artist: "Amara Nwosu",
-    medium: "Mixed media installation",
-    period: "2022",
-    image: "/images/DSC_1876-1-scaled.jpg",
-    description: "An installation exploring themes of resistance and resilience in Niger Delta communities.",
-  },
-]
+import { useState, useEffect } from "react";
+import { ref, get } from "firebase/database";
+import { database } from "@/lib/firebase/config"; // Import the initialized database
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-// Sample themes data
-const themes = [
-  {
-    name: "Cultural Heritage",
-    image: "/images/Culture.jpg",
-    description: "Artworks celebrating the rich cultural traditions of Niger Delta communities.",
-  },
-  {
-    name: "Environmental Concerns",
-    image: "/images/Environment.jpg",
-    description: "Works addressing environmental challenges and conservation in the region.",
-  },
-  {
-    name: "Contemporary Life",
-    image: "/images/Evolve.jpg",
-    description: "Depictions of modern life and social dynamics in the Niger Delta.",
-  },
-  {
-    name: "Traditional Crafts",
-    image: "/images/Final.jpg",
-    description: "Art inspired by and incorporating traditional craft techniques from the region.",
-  },
-]
+interface Artwork {
+  id: string;
+  title: string;
+  artist: string;
+  medium: string;
+  period: string;
+  imageUrl: string;
+  description: string;
+  category: string;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  specialty: string;
+  country: string;
+  imageUrl: string;
+  featured: boolean;
+  bio: string;
+}
+
+interface Theme {
+  name: string;
+  imageUrl: string;
+  description: string;
+}
 
 export default function NigerDeltaArt() {
+  const [nigerDeltaArtworks, setNigerDeltaArtworks] = useState<Artwork[]>([]);
+  const [nigerDeltaArtists, setNigerDeltaArtists] = useState<Artist[]>([]);
+  const [themes, setThemes] = useState<Theme[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const artworksRef = ref(database, "artworks"); // Reference to the "artworks" node
+      const artistsRef = ref(database, "artists"); // Reference to the "artists" node
+
+      try {
+        // Fetch artworks
+        const artworksSnapshot = await get(artworksRef);
+        if (artworksSnapshot.exists()) {
+          const artworksData = artworksSnapshot.val();
+          const fetchedArtworks = Object.entries(artworksData)
+            .map(([id, artwork]: [string, any]) => ({
+              id,
+              title: artwork.title || "",
+              artist: artwork.artist || "Unknown Artist",
+              medium: artwork.medium || "",
+              period: artwork.year || "",
+              imageUrl: artwork.image || "/placeholder.svg",
+              description: artwork.description || "",
+              category: artwork.category || "",
+            }))
+            .filter((artwork) => artwork.category === "Niger Delta"); // Filter for Niger Delta artworks
+          setNigerDeltaArtworks(fetchedArtworks);
+        } else {
+          console.log("No artworks found.");
+        }
+
+        // Fetch artists
+        const artistsSnapshot = await get(artistsRef);
+        if (artistsSnapshot.exists()) {
+          const artistsData = artistsSnapshot.val();
+          const fetchedArtists = Object.entries(artistsData)
+            .map(([id, artist]: [string, any]) => ({
+              id,
+              name: artist.name || "Unknown Artist",
+              specialty: artist.specialty || "",
+              country: artist.country || "",
+              imageUrl: artist.image || "/placeholder.svg",
+              featured: artist.featured || false,
+              bio: artist.bio || "",
+            }))
+            .filter((artist) => artist.specialty === "Niger Delta Art"); // Filter for Niger Delta artists
+          setNigerDeltaArtists(fetchedArtists);
+        } else {
+          console.log("No artists found.");
+        }
+
+        // Static themes data (can also be fetched from Firebase if needed)
+        setThemes([
+          {
+            name: "Cultural Heritage",
+            imageUrl: "/images/Culture.jpg",
+            description: "Artworks celebrating the rich cultural traditions of Niger Delta communities.",
+          },
+          {
+            name: "Environmental Concerns",
+            imageUrl: "/images/Environment.jpg",
+            description: "Works addressing environmental challenges and conservation in the region.",
+          },
+          {
+            name: "Contemporary Life",
+            imageUrl: "/images/Evolve.jpg",
+            description: "Depictions of modern life and social dynamics in the Niger Delta.",
+          },
+          {
+            name: "Traditional Crafts",
+            imageUrl: "/images/Final.jpg",
+            description: "Art inspired by and incorporating traditional craft techniques from the region.",
+          },
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -155,7 +199,7 @@ export default function NigerDeltaArt() {
                 className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -193,19 +237,19 @@ export default function NigerDeltaArt() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {themes.map((theme, index) => (
-                <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  <div className="md:w-2/5 relative h-64 md:h-auto">
-                    <Image src={theme.image || "/placeholder.svg"} alt={theme.name} fill className="object-cover" />
-                  </div>
-                  <div className="md:w-3/5 p-6">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">{theme.name}</h3>
-                    <p className="text-gray-700 mb-4">{theme.description}</p>
-                    <span className="text-blue-700 font-medium flex items-center group-hover:text-blue-800">
-                      Explore Theme{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
+              <div key={index} className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                <div className="md:w-2/5 relative h-64 md:h-auto">
+                  <Image src={theme.imageUrl} alt={theme.name} fill className="object-cover" />
                 </div>
+                <div className="md:w-3/5 p-6">
+                  <h3 className="text-xl font-bold text-blue-900 mb-2">{theme.name}</h3>
+                  <p className="text-gray-700 mb-4">{theme.description}</p>
+                  <span className="text-blue-700 font-medium flex items-center group-hover:text-blue-800">
+                    Explore Theme{" "}
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -220,7 +264,7 @@ export default function NigerDeltaArt() {
             {nigerDeltaArtworks.slice(3, 6).map((artwork) => (
               <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
                 <div className="relative h-64">
-                  <Image src={artwork.image || "/placeholder.svg"} alt={artwork.title} fill className="object-cover" />
+                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -228,11 +272,12 @@ export default function NigerDeltaArt() {
                   <p className="text-gray-600 text-sm mb-3">
                     {artwork.medium}, {artwork.period}
                   </p>
-                  <p
+                  <Link
+                    href={`/gallery/${artwork.id}`}
                     className="text-blue-700 font-medium flex items-center hover:text-blue-800"
                   >
                     View Details <ArrowRight className="ml-2 h-4 w-4" />
-                  </p>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -246,36 +291,11 @@ export default function NigerDeltaArt() {
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Featured Niger Delta Artists</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: "Tunde Adebayo",
-                specialty: "Painting",
-                country: "Nigeria",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Emmanuel Okon",
-                specialty: "Mixed Media",
-                country: "Nigeria",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Ngozi Eze",
-                specialty: "Photography",
-                country: "Nigeria",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Blessing Okoye",
-                specialty: "Textile Art",
-                country: "Nigeria",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-            ].map((artist, index) => (
-              <Link key={index} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
+            {nigerDeltaArtists.map((artist) => (
+              <Link key={artist.id} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
                   <div className="relative h-64">
-                    <Image src={artist.image || "/placeholder.svg"} alt={artist.name} fill className="object-cover" />
+                    <Image src={artist.imageUrl} alt={artist.name} fill className="object-cover" />
                   </div>
                   <div className="p-6 text-white">
                     <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
@@ -386,6 +406,5 @@ export default function NigerDeltaArt() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-
