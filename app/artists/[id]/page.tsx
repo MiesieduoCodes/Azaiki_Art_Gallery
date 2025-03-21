@@ -1,33 +1,86 @@
-"use client"
+"use client";
 
-import { useParams, useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
-import { useFirebase } from "@/contexts/firebase-context"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
+import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { ref, onValue } from "firebase/database";
+import { database } from "@/lib/firebase/config"; // Import the initialized database
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface Artist {
+  id: string;
+  name: string;
+  bio: string;
+  country: string;
+  imageUrl: string;
+}
+
+interface Artwork {
+  id: string;
+  title: string;
+  description: string;
+  year?: string;
+  imageUrl: string;
+}
 
 export default function ArtistPage() {
-  const { id } = useParams()
-  const router = useRouter()
-  const { getArtistById, getArtworksByArtistId, loading } = useFirebase()
-  const [artist, setArtist] = useState<any>(null)
-  const [artworks, setArtworks] = useState<any[]>([])
+  const { id } = useParams();
+  const router = useRouter();
+  const [artist, setArtist] = useState<Artist | null>(null);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && id) {
-      const foundArtist = getArtistById(id as string)
-      if (foundArtist) {
-        setArtist(foundArtist)
-        const artistArtworks = getArtworksByArtistId(id as string)
-        setArtworks(artistArtworks)
-      } else {
-        router.push("/artists")
-      }
+    if (!id) {
+      router.push("/artists");
+      return;
     }
-  }, [id, loading, getArtistById, getArtworksByArtistId, router])
+
+    // Fetch artist data
+    const artistRef = ref(database, `artists/${id}`);
+    onValue(artistRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setArtist({
+          id: id as string,
+          name: data.name || "",
+          bio: data.bio || "",
+          country: data.country || "",
+          imageUrl: data.image || "/placeholder.svg",
+        });
+      } else {
+        // If artist not found, redirect to artists page
+        router.push("/artists");
+      }
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching artist:", error);
+      setLoading(false);
+    });
+
+    // Fetch artworks by artist
+    const artworksRef = ref(database, "artworks");
+    onValue(artworksRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const artistArtworks = Object.keys(data)
+          .filter((key) => data[key].artistId === id)
+          .map((key) => ({
+            id: key,
+            title: data[key].title || "",
+            description: data[key].description || "",
+            year: data[key].year || "",
+            imageUrl: data[key].imageUrl || "/placeholder.svg",
+          }));
+        setArtworks(artistArtworks);
+      }
+    }, (error) => {
+      console.error("Error fetching artworks:", error);
+    });
+  }, [id, router]);
 
   if (loading || !artist) {
     return (
@@ -35,7 +88,7 @@ export default function ArtistPage() {
         <Loader2 className="h-8 w-8 animate-spin" />
         <span className="ml-2">Loading artist profile...</span>
       </div>
-    )
+    );
   }
 
   return (
@@ -52,7 +105,7 @@ export default function ArtistPage() {
           <div className="relative aspect-square w-full overflow-hidden rounded-lg mb-4">
             {artist.imageUrl ? (
               <Image
-                src={artist.imageUrl || "/placeholder.svg"}
+                src={artist.imageUrl}
                 alt={artist.name}
                 fill
                 className="object-cover"
@@ -87,7 +140,7 @@ export default function ArtistPage() {
                   <div className="relative w-full h-64">
                     {artwork.imageUrl ? (
                       <Image
-                        src={artwork.imageUrl || "/placeholder.svg"}
+                        src={artwork.imageUrl}
                         alt={artwork.title}
                         fill
                         className="object-cover"
@@ -112,6 +165,5 @@ export default function ArtistPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
-
