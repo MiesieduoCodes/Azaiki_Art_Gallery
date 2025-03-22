@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { onValue, ref, set, push, remove } from "firebase/database"
-import { database } from "@/lib/firebase/config";
+import { database } from "@/lib/firebase/config"; // Ensure this import is correct
 
 type Artist = {
   id?: string
@@ -176,5 +176,4 @@ export function useFirebase() {
     throw new Error("useFirebase must be used within a FirebaseProvider")
   }
   return context
-}
-
+  }
