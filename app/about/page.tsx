@@ -48,6 +48,41 @@ export default function About() {
         </div>
       </section>
 
+
+        {/* Video Section */}
+        <section className="py-16">
+          <div className="container-custom">
+            <h2 className="section-title text-center mb-12">Explore Our Gallery</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="relative rounded-lg overflow-hidden shadow-lg">
+                <video
+                  className="w-full h-auto"
+                  src="/videos/VID-20250314-WA0097.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className="relative rounded-lg overflow-hidden shadow-lg">
+                <video
+                  className="w-full h-auto"
+                  src="/videos/VID-20250314-WA0106.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
       {/* Our Mission */}
       <section className="py-16 bg-gray-50">
         <div className="container-custom">
@@ -134,52 +169,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Our Team
-      <section className="py-16">
-        <div className="container-custom">
-          <h2 className="section-title text-center mb-12">Our Team</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: "Dr. Sarah Johnson",
-                title: "Museum Director",
-                image: "/placeholder.svg?height=400&width=400",
-                bio: "With over 20 years of experience in museum management, Dr. Johnson has transformed ArtVista into a leading cultural institution.",
-              },
-              {
-                name: "Michael Chen",
-                title: "Chief Curator",
-                image: "/placeholder.svg?height=400&width=400",
-                bio: "An expert in contemporary and digital art, Michael brings innovative perspectives to our exhibition programming.",
-              },
-              {
-                name: "Dr. Amara Okonkwo",
-                title: "Head of African Art",
-                image: "/placeholder.svg?height=400&width=400",
-                bio: "Specializing in traditional and contemporary African art, Dr. Okonkwo has expanded our African collection significantly.",
-              },
-              {
-                name: "Carlos Mendez",
-                title: "Education Director",
-                image: "/placeholder.svg?height=400&width=400",
-                bio: "Carlos develops our award-winning educational programs, making art accessible to visitors of all ages.",
-              },
-            ].map((member, index) => (
-              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md">
-                <div className="relative h-64">
-                  <Image src={member.image || "/placeholder.svg"} alt={member.name} fill className="object-cover" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-blue-900">{member.name}</h3>
-                  <p className="text-blue-700 mb-3">{member.title}</p>
-                  <p className="text-gray-700 text-sm">{member.bio}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
+    
 
       {/* Visit Us */}
       <section className="py-16 bg-blue-700 text-white">
