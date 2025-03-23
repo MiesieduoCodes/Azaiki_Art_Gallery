@@ -176,4 +176,5 @@ export function useFirebase() {
     throw new Error("useFirebase must be used within a FirebaseProvider")
   }
   return context
-  }
+}
+
