@@ -68,7 +68,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* Sidebar for desktop */}
         <aside className="hidden w-64 flex-col border-r bg-white lg:flex">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6 bg-white">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
+            <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
               <ImageIcon className="h-6 w-6" />
               <span className="text-lg font-bold">Art Gallery Admin</span>
             </Link>

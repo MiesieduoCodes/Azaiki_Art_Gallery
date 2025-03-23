@@ -76,7 +76,7 @@ const profileData: ProfileData = {
   profile: {
     name: 'Professor Steve Azaiki',
     title: 'Scholar, Author, and Statesman',
-    profileImage: '/images/Prof-Steve-Portrait.jpg',
+    profileImage: 'https://www.parlnet.org/wp-content/uploads/2021/10/Steve-2.jpg',
     coverImage: '/images/IMG-20250314-WA0036.jpg',
     socialLinks: {
       email: 'mailto:professor.steve@university.com',
