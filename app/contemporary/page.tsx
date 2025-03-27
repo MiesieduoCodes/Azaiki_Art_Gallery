@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ref, get } from "firebase/database";
-import { database } from "@/lib/firebase/config"; // Import the initialized database
+import { database } from "@/lib/firebase/config";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -15,6 +15,7 @@ interface Artwork {
   imageUrl: string;
   description: string;
   category: string;
+  region?: string;
 }
 
 interface Artist {
@@ -27,15 +28,15 @@ interface Artist {
   bio: string;
 }
 
-export default function ContemporaryArt() {
-  const [contemporaryArtworks, setContemporaryArtworks] = useState<Artwork[]>([]);
-  const [contemporaryArtists, setContemporaryArtists] = useState<Artist[]>([]);
+export default function AfricanArt() {
+  const [africanArtworks, setAfricanArtworks] = useState<Artwork[]>([]);
+  const [africanArtists, setAfricanArtists] = useState<Artist[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const artworksRef = ref(database, "artworks"); // Reference to the "artworks" node
-      const artistsRef = ref(database, "artists"); // Reference to the "artists" node
+      const artworksRef = ref(database, "artworks");
+      const artistsRef = ref(database, "artists");
 
       try {
         // Fetch artworks
@@ -51,9 +52,10 @@ export default function ContemporaryArt() {
               imageUrl: artwork.image || "/placeholder.svg",
               description: artwork.description || "",
               category: artwork.category || "",
+              region: artwork.region || "",
             }))
-            .filter((artwork) => artwork.category === "Contemporary"); // Filter for Contemporary artworks
-          setContemporaryArtworks(fetchedArtworks);
+            .filter((artwork) => artwork.category === "African");
+          setAfricanArtworks(fetchedArtworks);
         } else {
           console.log("No artworks found.");
         }
@@ -72,8 +74,8 @@ export default function ContemporaryArt() {
               featured: artist.featured || false,
               bio: artist.bio || "",
             }))
-            .filter((artist) => artist.specialty.includes("Contemporary")); // Filter for Contemporary artists
-          setContemporaryArtists(fetchedArtists);
+            .filter((artist) => artist.specialty.includes("African") || artist.category === "African");
+          setAfricanArtists(fetchedArtists);
         } else {
           console.log("No artists found.");
         }
@@ -100,13 +102,12 @@ export default function ContemporaryArt() {
     <div className="bg-white">
       {/* Hero Section */}
       <section className="relative bg-blue-700 text-white pt-36 pb-10">
-        <div className="absolute inset-0 opacity-20 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 opacity-20 bg-[url('https://iili.io/3TDq1dx.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contemporary Art Collection</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">African Art Collection</h1>
             <p className="text-xl text-blue-100 mb-6">
-              Discover bold expressions from today's most innovative artists pushing the boundaries of traditional art
-              forms.
+              Explore the rich artistic traditions and contemporary expressions from across the African continent.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="#featured" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
@@ -127,26 +128,27 @@ export default function ContemporaryArt() {
             <div>
               <h2 className="section-title">About the Collection</h2>
               <p className="text-gray-700 mb-4">
-                Our Contemporary Art Collection showcases the diverse and innovative approaches of artists working
-                today. From abstract expressionism to digital art, this collection represents the cutting edge of
-                artistic expression.
+                Our African Art Collection celebrates the incredible diversity and creativity of artistic expressions
+                from across the African continent. From traditional sculptures and masks to contemporary paintings and
+                digital art, this collection spans centuries of artistic innovation.
               </p>
               <p className="text-gray-700 mb-4">
-                Contemporary art reflects our rapidly changing world, addressing themes of technology, identity,
-                globalization, and environmental concerns. These artists use both traditional and experimental
-                techniques to create works that challenge and inspire.
+                The collection highlights both historical pieces that showcase traditional techniques and cultural
+                significance, as well as works by contemporary African artists who are redefining and expanding upon
+                these traditions in the modern world.
               </p>
               <p className="text-gray-700">
-                Through this collection, we aim to support living artists and provide a platform for emerging voices in
-                the art world, fostering dialogue about the role of art in contemporary society.
+                Through this collection, we aim to promote a deeper understanding and appreciation of Africa's rich
+                cultural heritage and its ongoing contribution to global art movements.
               </p>
             </div>
             <div className="relative h-96 rounded-lg overflow-hidden shadow-lg">
               <Image
-                src="/placeholder.svg?height=800&width=1200"
-                alt="Contemporary art exhibition"
+                src="https://iili.io/3TDqGeV.jpg"
+                alt="African art exhibition"
                 fill
                 className="object-cover"
+                priority
               />
             </div>
           </div>
@@ -159,19 +161,29 @@ export default function ContemporaryArt() {
           <h2 className="section-title text-center mb-12">Featured Artworks</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {contemporaryArtworks.slice(0, 3).map((artwork) => (
+            {africanArtworks.slice(0, 3).map((artwork) => (
               <div
                 key={artwork.id}
                 className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="relative h-64">
-                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
+                  <Image 
+                    src={artwork.imageUrl} 
+                    alt={artwork.title} 
+                    fill 
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-blue-900 mb-1">{artwork.title}</h3>
                   <p className="text-blue-700 mb-1">{artwork.artist}</p>
-                  <p className="text-gray-600 text-sm mb-3">{artwork.period}</p>
-                  <p className="text-gray-700 mb-4">{artwork.description}</p>
+                  {artwork.region && (
+                    <p className="text-gray-600 text-sm mb-3">
+                      {artwork.region}, {artwork.period}
+                    </p>
+                  )}
+                  <p className="text-gray-700 mb-4 line-clamp-3">{artwork.description}</p>
                   <Link
                     href={`/gallery/${artwork.id}`}
                     className="text-blue-700 font-medium flex items-center hover:text-blue-800"
@@ -184,8 +196,8 @@ export default function ContemporaryArt() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/gallery" className="btn-primary">
-              View All Contemporary Artworks
+            <Link href="/gallery?category=African" className="btn-primary">
+              View All African Artworks
             </Link>
           </div>
         </div>
@@ -197,15 +209,25 @@ export default function ContemporaryArt() {
           <h2 className="section-title text-center mb-12">Collection Highlights</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {contemporaryArtworks.slice(3, 6).map((artwork) => (
+            {africanArtworks.slice(3, 6).map((artwork) => (
               <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
                 <div className="relative h-64">
-                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
+                  <Image 
+                    src={artwork.imageUrl} 
+                    alt={artwork.title} 
+                    fill 
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
                 </div>
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
                   <p className="text-blue-700 mb-1">{artwork.artist}</p>
-                  <p className="text-gray-600 text-sm mb-3">{artwork.period}</p>
+                  {artwork.region && (
+                    <p className="text-gray-600 text-sm mb-3">
+                      {artwork.region}, {artwork.period}
+                    </p>
+                  )}
                   <Link
                     href={`/gallery/${artwork.id}`}
                     className="text-blue-700 font-medium flex items-center hover:text-blue-800"
@@ -222,14 +244,24 @@ export default function ContemporaryArt() {
       {/* Featured Artists */}
       <section className="py-16 bg-blue-700 text-white">
         <div className="container-custom">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Featured Contemporary Artists</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Featured African Artists</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {contemporaryArtists.map((artist) => (
-              <Link key={artist.id} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
+            {africanArtists.map((artist) => (
+              <Link 
+                key={artist.id} 
+                href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} 
+                className="group"
+              >
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
                   <div className="relative h-64">
-                    <Image src={artist.imageUrl} alt={artist.name} fill className="object-cover" />
+                    <Image 
+                      src={artist.imageUrl} 
+                      alt={artist.name} 
+                      fill 
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
                   </div>
                   <div className="p-6 text-white">
                     <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
@@ -242,7 +274,7 @@ export default function ContemporaryArt() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/artists" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
+            <Link href="/artists?category=African" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
               View All Artists
             </Link>
           </div>
@@ -254,7 +286,7 @@ export default function ContemporaryArt() {
         <div className="container-custom">
           <h2 className="section-title text-center mb-4">Educational Resources</h2>
           <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-            Deepen your understanding of contemporary art with our educational resources and programs.
+            Deepen your understanding of African art with our educational resources and programs.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -275,12 +307,12 @@ export default function ContemporaryArt() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">Artist Talks</h3>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">Cultural Tours</h3>
               <p className="text-gray-700 mb-4">
-                Join our regular artist talks where contemporary artists discuss their work, process, and inspirations.
+                Join our expert guides for specialized tours of the African Art Collection, focusing on cultural context and history.
               </p>
-              <Link href="/events" className="text-blue-700 font-medium hover:text-blue-800">
-                View Schedule
+              <Link href="/tours/african" className="text-blue-700 font-medium hover:text-blue-800">
+                Book a Tour
               </Link>
             </div>
 
@@ -303,9 +335,9 @@ export default function ContemporaryArt() {
               </div>
               <h3 className="text-lg font-semibold text-blue-900 mb-2">Documentary Series</h3>
               <p className="text-gray-700 mb-4">
-                Watch our documentary series exploring contemporary art movements and their cultural impact.
+                Watch our educational video series exploring the history, techniques, and cultural significance of African art.
               </p>
-              <Link href="/resources/videos" className="text-blue-700 font-medium hover:text-blue-800">
+              <Link href="/resources/african-art" className="text-blue-700 font-medium hover:text-blue-800">
                 Watch Videos
               </Link>
             </div>
@@ -327,12 +359,12 @@ export default function ContemporaryArt() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">Art Workshops</h3>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">Traditional Workshops</h3>
               <p className="text-gray-700 mb-4">
-                Participate in hands-on workshops led by contemporary artists, exploring modern techniques and concepts.
+                Participate in hands-on workshops led by African artists, exploring traditional techniques and materials.
               </p>
-              <Link href="/events/workshops" className="text-blue-700 font-medium hover:text-blue-800">
-                Register for Workshops
+              <Link href="/workshops/african" className="text-blue-700 font-medium hover:text-blue-800">
+                Register Now
               </Link>
             </div>
           </div>

@@ -43,29 +43,7 @@ const sculptureArtworks = [
   },
 ]
 
-// // Sample materials data
-// const materials = [
-//   {
-//     name: "Stone & Marble",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Timeless materials that have been used for sculpture since ancient times.",
-//   },
-//   {
-//     name: "Metal & Bronze",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Versatile materials allowing for both strength and delicate detail.",
-//   },
-//   {
-//     name: "Wood",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "A warm, organic material with unique grain patterns and textures.",
-//   },
-//   {
-//     name: "Mixed Media",
-//     image: "/placeholder.svg?height=400&width=600",
-//     description: "Contemporary sculptures combining multiple materials for innovative effects.",
-//   },
-// ]
+
 
 export default function SculpturesCollection() {
   return (
@@ -128,7 +106,6 @@ export default function SculpturesCollection() {
       {/* Featured Artworks */}
       <section id="featured" className="py-16 bg-gray-50">
         <div className="container-custom">
-          <h2 className="section-title text-center mb-12">Featured Sculptures</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sculptureArtworks.slice(0, 3).map((artwork) => (
@@ -165,44 +142,6 @@ export default function SculpturesCollection() {
         </div>
       </section>
 
-      {/* Materials
-      <section className="py-16">
-        <div className="container-custom">
-          <h2 className="section-title text-center mb-4">Explore by Material</h2>
-          <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-            Discover how different materials shape the sculptural experience and artistic expression.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {materials.map((material, index) => (
-              <Link
-                key={index}
-                href={`/sculptures/${material.name.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and")}`}
-                className="group"
-              >
-                <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                  <div className="md:w-2/5 relative h-64 md:h-auto">
-                    <Image
-                      src={material.image || "/placeholder.svg"}
-                      alt={material.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="md:w-3/5 p-6">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">{material.name}</h3>
-                    <p className="text-gray-700 mb-4">{material.description}</p>
-                    <span className="text-blue-700 font-medium flex items-center group-hover:text-blue-800">
-                      Explore Material{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
       {/* Collection Highlights */}
       <section className="py-16 bg-gray-50">
@@ -234,60 +173,6 @@ export default function SculpturesCollection() {
         </div>
       </section>
 
-      {/* Featured Sculptors */}
-      <section className="py-16 bg-blue-700 text-white">
-        <div className="container-custom">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Featured Sculptors</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                name: "Carlos Mendez",
-                specialty: "Stone Sculpture",
-                country: "Mexico",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Isabella Martinez",
-                specialty: "Bronze Casting",
-                country: "Italy",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Hiroshi Tanaka",
-                specialty: "Wood Carving",
-                country: "Japan",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-              {
-                name: "Gabriela Santos",
-                specialty: "Metal Sculpture",
-                country: "Brazil",
-                image: "/placeholder.svg?height=400&width=400",
-              },
-            ].map((artist, index) => (
-              <Link key={index} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
-                  <div className="relative h-64">
-                    <Image src={artist.image || "/placeholder.svg"} alt={artist.name} fill className="object-cover" />
-                  </div>
-                  <div className="p-6 text-white">
-                    <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
-                    <p className="text-blue-200 mb-1">{artist.specialty}</p>
-                    <p className="text-blue-100 text-sm">{artist.country}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <Link href="/artists" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
-              View All Artists
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* Educational Resources */}
       <section className="py-16">
@@ -378,6 +263,7 @@ export default function SculpturesCollection() {
           </div>
         </div>
       </section>
+
     </div>
   )
 }

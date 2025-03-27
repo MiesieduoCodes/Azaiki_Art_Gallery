@@ -196,36 +196,6 @@ export default function DigitalArt() {
         </div>
       </section>
 
-      {/* Collection Highlights */}
-      <section className="py-16 bg-gray-50">
-        <div className="container-custom">
-          <h2 className="section-title text-center mb-12">Collection Highlights</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {digitalArtworks.slice(3, 6).map((artwork) => (
-              <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
-                <div className="relative h-64">
-                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
-                  <p className="text-blue-700 mb-1">{artwork.artist}</p>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {artwork.technique}, {artwork.period}
-                  </p>
-                  <Link
-                    href={`/gallery/${artwork.id}`}
-                    className="text-blue-700 font-medium flex items-center hover:text-blue-800"
-                  >
-                    View Details <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Featured Digital Artists */}
       <section className="py-16 bg-blue-700 text-white">
         <div className="container-custom">
