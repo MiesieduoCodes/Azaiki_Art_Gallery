@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ref, get } from "firebase/database";
-import { database } from "@/lib/firebase/config"; // Import the initialized database
+import { database } from "@/lib/firebase/config";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -11,11 +11,11 @@ interface Artwork {
   id: string;
   title: string;
   artist: string;
-  region: string;
   period: string;
   imageUrl: string;
   description: string;
   category: string;
+  region?: string;
 }
 
 interface Artist {
@@ -24,6 +24,8 @@ interface Artist {
   specialty: string;
   country: string;
   imageUrl: string;
+  featured: boolean;
+  bio: string;
   category: string;
 }
 
@@ -34,8 +36,8 @@ export default function AfricanArt() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const artworksRef = ref(database, "galleryItems"); // Reference to the "galleryItems" node
-      const artistsRef = ref(database, "artists"); // Reference to the "artists" node
+      const artworksRef = ref(database, "artworks");
+      const artistsRef = ref(database, "artists");
 
       try {
         // Fetch artworks
@@ -47,16 +49,14 @@ export default function AfricanArt() {
               id,
               title: artwork.title || "",
               artist: artwork.artist || "Unknown Artist",
-              region: artwork.region || "",
               period: artwork.year || "",
               imageUrl: artwork.image || "/placeholder.svg",
               description: artwork.description || "",
               category: artwork.category || "",
+              region: artwork.region || "",
             }))
-            .filter((artwork) => artwork.category === "African"); // Filter for African artworks
+            .filter((artwork) => artwork.category === "African");
           setAfricanArtworks(fetchedArtworks);
-        } else {
-          console.log("No artworks found.");
         }
 
         // Fetch artists
@@ -70,12 +70,12 @@ export default function AfricanArt() {
               specialty: artist.specialty || "",
               country: artist.country || "",
               imageUrl: artist.image || "/placeholder.svg",
+              featured: artist.featured || false,
+              bio: artist.bio || "",
               category: artist.category || "",
             }))
-            .filter((artist) => artist.category === "African"); // Filter for African artists
+            .filter((artist) => artist.category === "African");
           setAfricanArtists(fetchedArtists);
-        } else {
-          console.log("No artists found.");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -99,8 +99,8 @@ export default function AfricanArt() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative bg-blue-500 text-white pt-36 pb-10">
-        <div className="absolute inset-0 opacity-10 bg-[url('/images/Slavetrade.jpg')] bg-cover bg-center"></div>
+      <section className="relative bg-blue-700 text-white pt-36 pb-10">
+        <div className="absolute inset-0 opacity-20 bg-[url('https://iili.io/3TDq1dx.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">African Art Collection</h1>
@@ -142,10 +142,11 @@ export default function AfricanArt() {
             </div>
             <div className="relative h-96 rounded-lg overflow-hidden shadow-lg">
               <Image
-                src="/images/Mandela.jpg"
+                src="https://iili.io/3TDqGeV.jpg"
                 alt="African art exhibition"
                 fill
                 className="object-cover"
+                priority
               />
             </div>
           </div>
@@ -164,15 +165,23 @@ export default function AfricanArt() {
                 className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="relative h-64">
-                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
+                  <Image 
+                    src={artwork.imageUrl} 
+                    alt={artwork.title} 
+                    fill 
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-blue-900 mb-1">{artwork.title}</h3>
                   <p className="text-blue-700 mb-1">{artwork.artist}</p>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {artwork.region}, {artwork.period}
-                  </p>
-                  <p className="text-gray-700 mb-4">{artwork.description}</p>
+                  {artwork.region && (
+                    <p className="text-gray-600 text-sm mb-3">
+                      {artwork.region}, {artwork.period}
+                    </p>
+                  )}
+                  <p className="text-gray-700 mb-4 line-clamp-3">{artwork.description}</p>
                   <Link
                     href={`/gallery/${artwork.id}`}
                     className="text-blue-700 font-medium flex items-center hover:text-blue-800"
@@ -185,7 +194,7 @@ export default function AfricanArt() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/gallery" className="btn-primary">
+            <Link href="/gallery?category=African" className="btn-primary">
               View All African Artworks
             </Link>
           </div>
@@ -201,14 +210,22 @@ export default function AfricanArt() {
             {africanArtworks.slice(3, 6).map((artwork) => (
               <div key={artwork.id} className="bg-white rounded-lg overflow-hidden shadow-md">
                 <div className="relative h-64">
-                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
+                  <Image 
+                    src={artwork.imageUrl} 
+                    alt={artwork.title} 
+                    fill 
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
                 </div>
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-blue-900 mb-1">{artwork.title}</h3>
                   <p className="text-blue-700 mb-1">{artwork.artist}</p>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {artwork.region}, {artwork.period}
-                  </p>
+                  {artwork.region && (
+                    <p className="text-gray-600 text-sm mb-3">
+                      {artwork.region}, {artwork.period}
+                    </p>
+                  )}
                   <Link
                     href={`/gallery/${artwork.id}`}
                     className="text-blue-700 font-medium flex items-center hover:text-blue-800"
@@ -229,10 +246,20 @@ export default function AfricanArt() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {africanArtists.map((artist) => (
-              <Link key={artist.id} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
+              <Link 
+                key={artist.id} 
+                href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} 
+                className="group"
+              >
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
                   <div className="relative h-64">
-                    <Image src={artist.imageUrl} alt={artist.name} fill className="object-cover" />
+                    <Image 
+                      src={artist.imageUrl} 
+                      alt={artist.name} 
+                      fill 
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
                   </div>
                   <div className="p-6 text-white">
                     <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
@@ -245,7 +272,7 @@ export default function AfricanArt() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/artists" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
+            <Link href="/artists?category=African" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
               View All Artists
             </Link>
           </div>
@@ -278,12 +305,11 @@ export default function AfricanArt() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">Guided Tours</h3>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">Cultural Tours</h3>
               <p className="text-gray-700 mb-4">
-                Join our expert guides for specialized tours of the African Art Collection, offered daily at 11:00 AM
-                and 2:00 PM.
+                Join our expert guides for specialized tours of the African Art Collection, focusing on cultural context and history.
               </p>
-              <Link href="/contact" className="text-blue-700 font-medium hover:text-blue-800">
+              <Link href="/tours/african" className="text-blue-700 font-medium hover:text-blue-800">
                 Book a Tour
               </Link>
             </div>
@@ -305,12 +331,11 @@ export default function AfricanArt() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">Video Series</h3>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">Documentary Series</h3>
               <p className="text-gray-700 mb-4">
-                Watch our educational video series exploring the history, techniques, and cultural significance of
-                African art.
+                Watch our educational video series exploring the history, techniques, and cultural significance of African art.
               </p>
-              <Link href="/" className="text-blue-700 font-medium hover:text-blue-800">
+              <Link href="/resources/african-art" className="text-blue-700 font-medium hover:text-blue-800">
                 Watch Videos
               </Link>
             </div>
@@ -332,13 +357,12 @@ export default function AfricanArt() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-blue-900 mb-2">Workshops</h3>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">Traditional Workshops</h3>
               <p className="text-gray-700 mb-4">
-                Participate in hands-on workshops led by African artists and educators, exploring traditional and
-                contemporary techniques.
+                Participate in hands-on workshops led by African artists, exploring traditional techniques and materials.
               </p>
-              <Link href="/" className="text-blue-700 font-medium hover:text-blue-800">
-                Register for Workshops
+              <Link href="/workshops/african" className="text-blue-700 font-medium hover:text-blue-800">
+                Register Now
               </Link>
             </div>
           </div>
