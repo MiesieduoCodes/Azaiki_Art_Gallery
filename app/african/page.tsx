@@ -142,7 +142,7 @@ export default function AfricanArt() {
             </div>
             <div className="relative h-96 rounded-lg overflow-hidden shadow-lg">
               <Image
-                src="https://iili.io/3TDqGeV.jpg"
+                src="https://iili.io/3TDFWzX.jpg"
                 alt="African art exhibition"
                 fill
                 className="object-cover"
