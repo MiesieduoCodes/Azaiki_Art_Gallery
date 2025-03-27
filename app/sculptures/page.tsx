@@ -100,7 +100,7 @@ export default function SculpturesCollection() {
     <div className="bg-white">
       {/* Hero Section */}
       <section className="relative bg-blue-500 text-white pb-10 pt-36">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://iili.io/3TDq1dx.jpg')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 opacity-20 bg-[url('https://iili.io/3TDF5Wg.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Sculpture Collection</h1>
