@@ -137,36 +137,93 @@ export default function GalleryPage() {
 
           {/* Pagination */}
           <div className="mt-12 flex justify-center">
-            <nav className="flex items-center gap-1">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                  className={`px-3 py-1 border border-gray-300 rounded-md ${
-                    currentPage === index + 1
-                      ? "bg-blue-700 text-white"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </nav>
-          </div>
+  <nav className="flex items-center gap-1">
+    {/* Previous Button - Always visible */}
+    <button
+      onClick={() => handlePageChange(currentPage - 1)}
+      disabled={currentPage === 1}
+      className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <span className="sr-only md:not-sr-only">Previous</span>
+      <span className="md:sr-only">←</span>
+    </button>
+
+    {/* First Page - Always visible */}
+    <button
+      onClick={() => handlePageChange(1)}
+      className={`px-3 py-1 border border-gray-300 rounded-md ${
+        currentPage === 1
+          ? "bg-blue-700 text-white"
+          : "text-gray-600 hover:bg-gray-50"
+      }`}
+    >
+      1
+    </button>
+
+    {/* Ellipsis for large page ranges */}
+    {currentPage > 3 && totalPages > 5 && (
+      <span className="px-2">...</span>
+    )}
+
+    {/* Dynamic middle pages - shown on larger screens */}
+    {Array.from({ length: totalPages }, (_, index) => {
+      const page = index + 1;
+      // Show only relevant pages on mobile
+      if (
+        (page >= currentPage - 1 && page <= currentPage + 1) ||
+        page === totalPages ||
+        page === 1
+      ) {
+        // Skip if we've already handled first/last page or it's out of range
+        if (page === 1 || page === totalPages) return null;
+        
+        return (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={`hidden sm:block px-3 py-1 border border-gray-300 rounded-md ${
+              currentPage === page
+                ? "bg-blue-700 text-white"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            {page}
+          </button>
+        );
+      }
+      return null;
+    })}
+
+    {/* Ellipsis for large page ranges */}
+    {currentPage < totalPages - 2 && totalPages > 5 && (
+      <span className="px-2 hidden sm:block">...</span>
+    )}
+
+    {/* Last Page - Always visible if different from first */}
+    {totalPages > 1 && (
+      <button
+        onClick={() => handlePageChange(totalPages)}
+        className={`px-3 py-1 border border-gray-300 rounded-md ${
+          currentPage === totalPages
+            ? "bg-blue-700 text-white"
+            : "text-gray-600 hover:bg-gray-50"
+        }`}
+      >
+        {totalPages}
+      </button>
+    )}
+
+    {/* Next Button - Always visible */}
+    <button
+      onClick={() => handlePageChange(currentPage + 1)}
+      disabled={currentPage === totalPages}
+      className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <span className="sr-only md:not-sr-only">Next</span>
+      <span className="md:sr-only">→</span>
+    </button>
+  </nav>
+</div>
         </div>
       </section>
 
