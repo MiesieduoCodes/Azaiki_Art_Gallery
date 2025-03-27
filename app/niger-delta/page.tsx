@@ -81,7 +81,7 @@ export default function NigerDeltaArt() {
               featured: artist.featured || false,
               bio: artist.bio || "",
             }))
-            .filter((artist) => artist.specialty === "Niger Delta Art"); // Filter for Niger Delta artists
+            .filter((artist) => artist.specialty === "Niger Delta"); // Filter for Niger Delta artists
           setNigerDeltaArtists(fetchedArtists);
         } else {
           console.log("No artists found.");

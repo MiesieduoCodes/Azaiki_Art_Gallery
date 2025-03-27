@@ -100,7 +100,7 @@ export default function AfricanArt() {
     <div className="bg-white">
       {/* Hero Section */}
       <section className="relative bg-blue-700 text-white pt-36 pb-10">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://iili.io/3TDq1dx.jpg')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 opacity-20 bg-[url('https://iili.io/3TDFphF.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">African Art Collection</h1>
@@ -197,6 +197,56 @@ export default function AfricanArt() {
             <Link href="/gallery?category=African" className="btn-primary">
               View All African Artworks
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Regional Highlights */}
+      <section className="py-16">
+        <div className="container-custom">
+          <h2 className="section-title text-center mb-4">Regional Highlights</h2>
+          <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
+            Explore the diverse artistic traditions from different regions of Africa.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+              <div className="md:w-2/5 relative h-64 md:h-auto">
+                <Image 
+                  src="https://iili.io/3TDFhss.jpg" 
+                  alt="West African Art" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="md:w-3/5 p-6">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">West Africa</h3>
+                <p className="text-gray-700 mb-4">
+                  Discover the rich traditions of Yoruba, Ashanti, and Benin art, known for their bronze casting, wood carving, 
+                  and textile arts that have influenced generations of artists.
+                </p>
+
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+              <div className="md:w-2/5 relative h-64 md:h-auto">
+                <Image 
+                  src="https://iili.io/3TDFphF.jpg" 
+                  alt="East African Art" 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="md:w-3/5 p-6">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">East Africa</h3>
+                <p className="text-gray-700 mb-4">
+                  Experience the unique artistic expressions from Ethiopia, Kenya, and Tanzania, including traditional 
+                  Makonde carving, Swahili coastal art, and contemporary urban movements.
+                </p>
+
+              </div>
+            </div>
           </div>
         </div>
       </section>

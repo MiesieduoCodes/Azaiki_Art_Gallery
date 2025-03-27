@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ref, get } from "firebase/database";
-import { database } from "@/lib/firebase/config"; // Import the initialized database
+import { database } from "@/lib/firebase/config";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -26,6 +26,7 @@ interface Artist {
   imageUrl: string;
   featured: boolean;
   bio: string;
+  category: string;
 }
 
 export default function DigitalArt() {
@@ -35,8 +36,8 @@ export default function DigitalArt() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const artworksRef = ref(database, "artworks"); // Reference to the "artworks" node
-      const artistsRef = ref(database, "artists"); // Reference to the "artists" node
+      const artworksRef = ref(database, "artworks");
+      const artistsRef = ref(database, "artists");
 
       try {
         // Fetch artworks
@@ -46,18 +47,16 @@ export default function DigitalArt() {
           const fetchedArtworks = Object.entries(artworksData)
             .map(([id, artwork]: [string, any]) => ({
               id,
-              title: artwork.title || "",
+              title: artwork.title || "Untitled Digital Art",
               artist: artwork.artist || "Unknown Artist",
-              technique: artwork.medium || "",
-              period: artwork.year || "",
+              technique: artwork.medium || "Digital",
+              period: artwork.year || "Contemporary",
               imageUrl: artwork.image || "/placeholder.svg",
-              description: artwork.description || "",
+              description: artwork.description || "No description available",
               category: artwork.category || "",
             }))
-            .filter((artwork) => artwork.category === "Digital"); // Filter for Digital artworks
+            .filter((artwork) => artwork.category === "Digital");
           setDigitalArtworks(fetchedArtworks);
-        } else {
-          console.log("No artworks found.");
         }
 
         // Fetch artists
@@ -73,11 +72,10 @@ export default function DigitalArt() {
               imageUrl: artist.image || "/placeholder.svg",
               featured: artist.featured || false,
               bio: artist.bio || "",
+              category: artist.category || "",
             }))
-            .filter((artist) => artist.specialty.includes("Digital Art")); // Filter for Digital artists
+            .filter((artist) => artist.specialty.includes("Digital") || artist.category === "Digital");
           setDigitalArtists(fetchedArtists);
-        } else {
-          console.log("No artists found.");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -102,7 +100,7 @@ export default function DigitalArt() {
     <div className="bg-white">
       {/* Hero Section */}
       <section className="relative bg-blue-700 text-white pt-36 pb-10">
-        <div className="absolute inset-0 opacity-20 bg-[url('/images/IMG-20250314-WA0025.jpg')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 opacity-20 bg-[url('https://iili.io/3TDfDWF.jpg')] bg-cover bg-center"></div>
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Digital Art Collection</h1>
@@ -146,10 +144,11 @@ export default function DigitalArt() {
             </div>
             <div className="relative h-96 rounded-lg overflow-hidden shadow-lg">
               <Image
-                src="/images/IMG-20250314-WA0037.jpg"
+                src="https://iili.io/3TDFc0v.jpg"
                 alt="Digital art exhibition"
                 fill
                 className="object-cover"
+                priority
               />
             </div>
           </div>
@@ -168,7 +167,13 @@ export default function DigitalArt() {
                 className="bg-white rounded-lg overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1"
               >
                 <div className="relative h-64">
-                  <Image src={artwork.imageUrl} alt={artwork.title} fill className="object-cover" />
+                  <Image 
+                    src={artwork.imageUrl} 
+                    alt={artwork.title} 
+                    fill 
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-blue-900 mb-1">{artwork.title}</h3>
@@ -176,7 +181,7 @@ export default function DigitalArt() {
                   <p className="text-gray-600 text-sm mb-3">
                     {artwork.technique}, {artwork.period}
                   </p>
-                  <p className="text-gray-700 mb-4">{artwork.description}</p>
+                  <p className="text-gray-700 mb-4 line-clamp-3">{artwork.description}</p>
                   <Link
                     href={`/gallery/${artwork.id}`}
                     className="text-blue-700 font-medium flex items-center hover:text-blue-800"
@@ -189,7 +194,7 @@ export default function DigitalArt() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/gallery" className="btn-primary">
+            <Link href="/gallery?category=Digital" className="btn-primary">
               View All Digital Artworks
             </Link>
           </div>
@@ -203,10 +208,20 @@ export default function DigitalArt() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {digitalArtists.map((artist) => (
-              <Link key={artist.id} href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} className="group">
+              <Link 
+                key={artist.id} 
+                href={`/artists/${artist.name.toLowerCase().replace(/\s+/g, "-")}`} 
+                className="group"
+              >
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden hover:bg-white/20 transition-colors">
                   <div className="relative h-64">
-                    <Image src={artist.imageUrl} alt={artist.name} fill className="object-cover" />
+                    <Image 
+                      src={artist.imageUrl} 
+                      alt={artist.name} 
+                      fill 
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
                   </div>
                   <div className="p-6 text-white">
                     <h3 className="text-xl font-bold mb-1">{artist.name}</h3>
@@ -219,7 +234,7 @@ export default function DigitalArt() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/artists" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
+            <Link href="/artists?category=Digital" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
               View All Artists
             </Link>
           </div>
