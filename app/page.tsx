@@ -156,9 +156,11 @@ export default function Home() {
                     <div>
                       <h3 className="font-semibold text-lg">Opening Hours</h3>
                       <p className="text-blue-100">
-                      Monday - Saturday: 08:00 AM - 02:00 PM
+                      Monday - Friday: 09:00 AM - 04:00 PM
                       <br />
-                      Sunday: Closed  
+                      Saturday: 08:00 AM - 02:00 PM
+                      <br />
+                      Sunday: Closed
                       </p>
                     </div>
                   </div>
