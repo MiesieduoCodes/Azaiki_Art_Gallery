@@ -41,7 +41,7 @@ export default function Home() {
         {/* Video Background */}
         <video
           className="absolute inset-0 w-full h-full object-cover"
-          src="/videos/AQOc55bueLXv2tnvImmRPNToeyGrIzv61GIV1efiPTIBtac9iCm32WroV6N3UHuaDtvb9w1esufMXgRfMX3BYagY.mp4"
+          src="/videos/VID-20250314-WA0106.mp4"
           autoPlay
           loop
           muted
@@ -49,7 +49,7 @@ export default function Home() {
         />
 
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
 
         {/* Content */}
         <div className="container-custom relative z-10 py-20 md:py-32">
@@ -156,9 +156,9 @@ export default function Home() {
                     <div>
                       <h3 className="font-semibold text-lg">Opening Hours</h3>
                       <p className="text-blue-100">
-                        Tuesday - Sunday: 10:00 AM - 6:00 PM
-                        <br />
-                        Monday: Closed
+                      Monday - Saturday: 08:00 AM - 02:00 PM
+                      <br />
+                      Sunday: Closed  
                       </p>
                     </div>
                   </div>

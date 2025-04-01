@@ -88,11 +88,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center">
                 <Phone className="mr-2 h-5 w-5 text-blue-300 flex-shrink-0" />
-                <span className="text-blue-100"><p> +1 (234) 567-8900</p>       </span>
+                <span className="text-blue-100"><p>+2348141515074, +2348034632325</p></span>
               </li>
               <li className="flex items-center">
                 <Mail className="mr-2 h-5 w-5 text-blue-300 flex-shrink-0" />
-                <span className="text-blue-100"><p>info@artvista.com</p></span>
+                <span className="text-blue-100"><p>info@azaikiartgallery.org.ng</p></span>
               </li>
             </ul>
           </div>

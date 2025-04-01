@@ -57,7 +57,7 @@ export default function About() {
               <div className="relative rounded-lg overflow-hidden shadow-lg">
                 <video
                   className="w-full h-auto"
-                  src="/videos/VID-20250314-WA0097.mp4"
+                  src="/videos/AQOc55bueLXv2tnvImmRPNToeyGrIzv61GIV1efiPTIBtac9iCm32WroV6N3UHuaDtvb9w1esufMXgRfMX3BYagY.mp4"
                   autoPlay
                   muted
                   loop
@@ -188,9 +188,9 @@ export default function About() {
                   <div>
                     <h3 className="font-semibold text-lg">Opening Hours</h3>
                     <p className="text-blue-100">
-                      Tuesday - Sunday: 10:00 AM - 6:00 PM
+                      Monday - Saturday: 08:00 AM - 02:00 PM
                       <br />
-                      Monday: Closed
+                      Sunday: Closed
                     </p>
                   </div>
                 </div>
