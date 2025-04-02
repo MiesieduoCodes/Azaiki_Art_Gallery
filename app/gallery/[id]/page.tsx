@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ref, onValue } from "firebase/database";
-import { database } from "@/lib/firebase/config"; // Ensure this is imported correctly
+import { database } from "@/lib/firebase/config";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -31,7 +31,7 @@ interface Artist {
 }
 
 export default function ArtworkPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [artwork, setArtwork] = useState<Artwork | null>(null);
   const [artist, setArtist] = useState<Artist | null>(null);
@@ -82,7 +82,6 @@ export default function ArtworkPage() {
           });
         }
       } else {
-        // If artwork not found, redirect to gallery
         router.push("/gallery");
       }
       setLoading(false);
@@ -91,6 +90,14 @@ export default function ArtworkPage() {
       setLoading(false);
     });
   }, [id, router]);
+
+  const handleBuyClick = () => {
+    if (!artwork?.price || artwork.price <= 0) {
+      alert("This artwork is not available for purchase");
+      return;
+    }
+    router.push(`/payment/${id}`);
+  };
 
   if (loading || !artwork) {
     return (
@@ -111,6 +118,7 @@ export default function ArtworkPage() {
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Artwork Image */}
         <div className="relative aspect-square w-full overflow-hidden rounded-lg">
           {artwork.imageUrl ? (
             <Image
@@ -121,10 +129,13 @@ export default function ArtworkPage() {
               priority
             />
           ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">No Image</div>
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              No Image
+            </div>
           )}
         </div>
 
+        {/* Artwork Details */}
         <div>
           <h1 className="text-3xl font-bold mb-2">{artwork.title}</h1>
           <p className="text-xl mb-4">
@@ -172,6 +183,22 @@ export default function ArtworkPage() {
                 <p>${artwork.price.toLocaleString()}</p>
               </div>
             )}
+          </div>
+
+          {/* Buy Button - Positioned prominently */}
+          <div className="mb-8">
+            <Button
+              size="lg"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-lg"
+              onClick={handleBuyClick}
+              disabled={!artwork.price || artwork.price <= 0}
+            >
+              {artwork.price && artwork.price > 0 ? (
+                `Buy Now - $${artwork.price.toLocaleString()}`
+              ) : (
+                "Not Available for Purchase"
+              )}
+            </Button>
           </div>
 
           {artist && (

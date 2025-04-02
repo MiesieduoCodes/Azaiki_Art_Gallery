@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
+import { getAuth } from "firebase/auth";
+
+// Ensure that environment variables are available
+if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+  console.error("Missing Firebase API Key in environment variables.");
+}
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,11 +17,12 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Log Firebase config for debugging
+// Log Firebase config for debugging (remove in production)
 console.log("Firebase Config:", firebaseConfig);
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+export const auth = getAuth(app);
 
 export { app, database };

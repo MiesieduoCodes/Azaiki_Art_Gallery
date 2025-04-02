@@ -133,6 +133,8 @@ export default function ArtworksPage() {
                     <TableHead>Title</TableHead>
                     <TableHead className="hidden md:table-cell">Artist</TableHead>
                     <TableHead className="hidden md:table-cell">Category</TableHead>
+                    <TableHead className="hidden lg:table-cell">Price</TableHead>
+                    <TableHead className="hidden sm:table-cell">Status</TableHead>
                     <TableHead className="hidden sm:table-cell">Views</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -153,6 +155,16 @@ export default function ArtworksPage() {
                       <TableCell className="hidden md:table-cell">{artwork.artist || "Unknown"}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         {artwork.category && <Badge variant="outline">{artwork.category}</Badge>}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {artwork.price_naira ? `₦${artwork.price_naira.toLocaleString()}` : "-"}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        {artwork.sold ? (
+                          <Badge variant="destructive">Sold</Badge>
+                        ) : (
+                          <Badge variant="secondary">Available</Badge>
+                        )}
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">{artwork.views || "0"}</TableCell>
                       <TableCell className="text-right">
@@ -201,4 +213,3 @@ export default function ArtworksPage() {
     </div>
   )
 }
-

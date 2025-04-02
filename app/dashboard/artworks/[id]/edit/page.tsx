@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -14,8 +13,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { getArtworkById, updateArtwork } from "@/lib/firebase/artworks"
 import type { Artwork } from "@/types"
+import { Switch } from "@/components/ui/switch"
+import { useParams } from "next/navigation"
 
-export default function EditArtworkPage({ params }: { params: { id: string } }) {
+export default function EditArtworkPage() {
+  const params = useParams() // Use useParams hook instead of getting params from props
   const [artwork, setArtwork] = useState<Artwork | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -28,6 +30,8 @@ export default function EditArtworkPage({ params }: { params: { id: string } }) 
     dimensions: "",
     description: "",
     image: "",
+    price_naira: 0,
+    sold: false,
   })
   const router = useRouter()
   const { toast } = useToast()
@@ -35,7 +39,8 @@ export default function EditArtworkPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchArtwork = async () => {
       try {
-        const artworkData = await getArtworkById(params.id)
+        // Access params.id directly since we're using useParams()
+        const artworkData = await getArtworkById(params.id as string)
         if (!artworkData) {
           toast({
             title: "Error",
@@ -55,6 +60,8 @@ export default function EditArtworkPage({ params }: { params: { id: string } }) 
           dimensions: artworkData.dimensions || "",
           description: artworkData.description || "",
           image: artworkData.image || "",
+          price_naira: artworkData.price_naira || 0,
+          sold: artworkData.sold || false,
         })
       } catch (error) {
         console.error("Error fetching artwork:", error)
@@ -69,18 +76,27 @@ export default function EditArtworkPage({ params }: { params: { id: string } }) 
     }
 
     fetchArtwork()
-  }, [params.id, router, toast])
+  }, [params.id, router, toast]) // params.id is now properly accessed
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: Number(value) }))
+  }
+
+  const handleSwitchChange = (checked: boolean) => {
+    setFormData((prev) => ({ ...prev, sold: checked }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       setSaving(true)
-      await updateArtwork(params.id, formData)
+      await updateArtwork(params.id as string, formData)
       toast({
         title: "Success",
         description: "Artwork updated successfully",
@@ -170,6 +186,28 @@ export default function EditArtworkPage({ params }: { params: { id: string } }) 
               </div>
             </div>
 
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="price_naira">Price (Naira)</Label>
+                <Input
+                  id="price_naira"
+                  name="price_naira"
+                  type="number"
+                  value={formData.price_naira}
+                  onChange={handleNumberChange}
+                  min="0"
+                />
+              </div>
+              <div className="flex items-center justify-between space-y-2">
+                <Label htmlFor="sold">Sold</Label>
+                <Switch
+                  id="sold"
+                  checked={formData.sold}
+                  onCheckedChange={handleSwitchChange}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="image">Image URL</Label>
               <Input
@@ -216,4 +254,3 @@ export default function EditArtworkPage({ params }: { params: { id: string } }) 
     </div>
   )
 }
-

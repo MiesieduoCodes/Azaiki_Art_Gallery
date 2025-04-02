@@ -21,6 +21,8 @@ export interface Artwork {
   artistImage?: string
   artistBio?: string
   views?: string
+  price_naira?: number;
+  sold?: boolean;
   relatedWorks?: Array<{
     id: number
     title: string

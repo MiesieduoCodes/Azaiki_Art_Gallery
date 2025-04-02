@@ -23,7 +23,14 @@ import {
 import { getArtworkById, deleteArtwork } from "@/lib/firebase/artworks"
 import type { Artwork } from "@/types"
 
-export default function ArtworkDetailsPage({ params }: { params: { id: string } }) {
+interface PageParams {
+  id: string
+}
+
+export default function ArtworkDetailsPage({ params }: { params: PageParams }) {
+  // Directly destructure params without using the use() hook
+  const { id } = params
+  
   const [artwork, setArtwork] = useState<Artwork | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
@@ -33,7 +40,7 @@ export default function ArtworkDetailsPage({ params }: { params: { id: string } 
   useEffect(() => {
     const fetchArtwork = async () => {
       try {
-        const artworkData = await getArtworkById(params.id)
+        const artworkData = await getArtworkById(id)
         if (!artworkData) {
           toast({
             title: "Error",
@@ -57,12 +64,12 @@ export default function ArtworkDetailsPage({ params }: { params: { id: string } 
     }
 
     fetchArtwork()
-  }, [params.id, router, toast])
+  }, [id, router, toast])
 
   const handleDelete = async () => {
     try {
       setDeleting(true)
-      await deleteArtwork(params.id)
+      await deleteArtwork(id)
       toast({
         title: "Success",
         description: "Artwork deleted successfully",
@@ -114,7 +121,7 @@ export default function ArtworkDetailsPage({ params }: { params: { id: string } 
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/dashboard/artworks/${params.id}/edit`}>
+            <Link href={`/dashboard/artworks/${id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </Link>
@@ -190,6 +197,9 @@ export default function ArtworkDetailsPage({ params }: { params: { id: string } 
             <div className="flex flex-wrap gap-2">
               {artwork.category && <Badge>{artwork.category}</Badge>}
               {artwork.year && <Badge variant="outline">{artwork.year}</Badge>}
+              {artwork.sold && (
+                <Badge variant="destructive">Sold</Badge>
+              )}
             </div>
 
             <Separator />
@@ -205,6 +215,20 @@ export default function ArtworkDetailsPage({ params }: { params: { id: string } 
                 <div className="grid grid-cols-3">
                   <span className="font-medium">Dimensions:</span>
                   <span className="col-span-2">{artwork.dimensions}</span>
+                </div>
+              )}
+              {artwork.price_naira && (
+                <div className="grid grid-cols-3">
+                  <span className="font-medium">Price:</span>
+                  <span className="col-span-2">₦{artwork.price_naira.toLocaleString()}</span>
+                </div>
+              )}
+              {artwork.sold !== undefined && (
+                <div className="grid grid-cols-3">
+                  <span className="font-medium">Status:</span>
+                  <span className="col-span-2">
+                    {artwork.sold ? "Sold" : "Available"}
+                  </span>
                 </div>
               )}
             </div>
@@ -224,4 +248,3 @@ export default function ArtworkDetailsPage({ params }: { params: { id: string } 
     </div>
   )
 }
-
