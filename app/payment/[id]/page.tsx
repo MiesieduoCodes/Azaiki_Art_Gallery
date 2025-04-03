@@ -447,7 +447,7 @@ export default function PaymentPage() {
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-xs text-muted-foreground">Powered by</span>
                 <img
-                  src="/flutterwave-logo.svg"
+                  src="/idMJJ4PV-S_1743697842945.svg"
                   alt="Flutterwave"
                   className="h-4"
                 />

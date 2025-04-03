@@ -52,9 +52,6 @@ export default function PaymentSuccessPage() {
           <Button asChild className="w-full">
             <Link href="/gallery">Back to Gallery</Link>
           </Button>
-          <Button variant="outline" asChild className="w-full">
-            <Link href="/account/orders">View Your Orders</Link>
-          </Button>
         </div>
 
         <div className="mt-8 text-sm text-gray-500">
