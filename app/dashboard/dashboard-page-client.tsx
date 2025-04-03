@@ -1,32 +1,44 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Overview } from "@/components/dashboard/overview"
-import { RecentArtworks } from "@/components/dashboard/recent-artworks"
-import { DashboardStats } from "@/components/dashboard/dashboard-stats"
-import { initializeDatabase } from "@/lib/firebase/init-data"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Overview } from "@/components/dashboard/overview";
+import { RecentArtworks } from "@/components/dashboard/recent-artworks";
+import { DashboardStats } from "@/components/dashboard/dashboard-stats";
+import { initializeDatabase } from "@/lib/firebase/init-data";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardPageClient() {
-  const [initializing, setInitializing] = useState(true)
-  const [initialized, setInitialized] = useState(false)
+  const [initializing, setInitializing] = useState(true);
+  const [initialized, setInitialized] = useState(false);
+  const { currentUser, loading } = useAuth();
 
   useEffect(() => {
     const init = async () => {
       try {
-        const wasInitialized = await initializeDatabase()
-        setInitialized(wasInitialized)
+        const wasInitialized = await initializeDatabase();
+        setInitialized(wasInitialized);
       } catch (error) {
-        console.error("Error initializing database:", error)
+        console.error("Error initializing database:", error);
       } finally {
-        setInitializing(false)
+        setInitializing(false);
       }
-    }
+    };
 
-    init()
-  }, [])
+    if (currentUser && !loading) {
+      init();
+    }
+  }, [currentUser, loading]);
+
+  if (loading || !currentUser) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col pt-24 gap-4">
@@ -67,6 +79,5 @@ export default function DashboardPageClient() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

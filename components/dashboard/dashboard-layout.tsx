@@ -14,7 +14,6 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Artists", href: "/dashboard/artists", icon: Users },
   { name: "Artworks", href: "/dashboard/artworks", icon: ImageIcon },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
