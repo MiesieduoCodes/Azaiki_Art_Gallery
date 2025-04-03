@@ -30,6 +30,12 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Hardcoded valid credentials (only for comparison)
+const VALID_CREDENTIALS = {
+  email: 'admin@admin.com',
+  password: 'Admin@123'
+};
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,10 +55,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setLoading(true);
       setError(null);
+      
+      // First validate against hardcoded credentials
+      if (email !== VALID_CREDENTIALS.email || password !== VALID_CREDENTIALS.password) {
+        throw new Error('Invalid credentials');
+      }
+      
+      // If validation passes, proceed with Firebase auth
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
       const error = err as AuthError;
-      setError(error.message || 'Login failed');
+      setError('Invalid email or password'); // Generic error message
       throw error;
     } finally {
       setLoading(false);

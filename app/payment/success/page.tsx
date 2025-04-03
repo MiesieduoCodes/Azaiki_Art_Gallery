@@ -1,110 +1,67 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { CheckCircle } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-
-interface Artwork {
-  id: string // Added missing id property
-  title: string
-}
-
-interface OrderDetails {
-  artwork: Artwork
-  amount: number
-  createdAt: string
-  [key: string]: any // For any additional properties
-}
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
+import { useEffect } from "react";
+import { ref, update } from "firebase/database";
+import { database } from "@/lib/firebase/config";
 
 export default function PaymentSuccessPage() {
-  const searchParams = useSearchParams()
-  const reference = searchParams.get("reference")
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null)
-  const [loading, setLoading] = useState(true)
+  const searchParams = useSearchParams();
+  const txRef = searchParams.get("tx_ref");
+  const artworkId = searchParams.get("artwork_id");
 
+  // Mark artwork as sold in database after successful payment
   useEffect(() => {
-    const fetchOrderDetails = async () => {
-      if (!reference) {
-        setLoading(false)
-        return
-      }
-
-      try {
-        const response = await fetch(`/api/orders/verify?reference=${reference}`)
-        if (!response.ok) throw new Error("Failed to fetch order details")
-
-        const data = await response.json()
-        setOrderDetails(data)
-      } catch (error) {
-        console.error("Error fetching order details:", error)
-      } finally {
-        setLoading(false)
-      }
+    if (artworkId) {
+      const artworkRef = ref(database, `artworks/${artworkId}`);
+      update(artworkRef, { sold: true })
+        .then(() => console.log("Artwork marked as sold"))
+        .catch((error) => console.error("Error updating artwork:", error));
     }
-
-    fetchOrderDetails()
-  }, [reference])
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
+  }, [artworkId]);
 
   return (
-    <div className="container mx-auto px-4 py-16 max-w-md">
-      <Card className="text-center">
-        <CardHeader>
-          <div className="flex justify-center mb-4">
-            <CheckCircle className="h-16 w-16 text-green-500" />
-          </div>
-          <CardTitle className="text-2xl">Payment Successful!</CardTitle>
-          <CardDescription>Thank you for your purchase</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p>
-            Your transaction reference: <span className="font-medium">{reference}</span>
-          </p>
-
-          <div className="bg-gray-50 p-4 rounded-lg text-left">
-            <p className="text-sm text-gray-500 mb-2">Order Details:</p>
-            {orderDetails ? (
-              <>
-                <p>
-                  <span className="font-medium">Artwork:</span> {orderDetails.artwork?.title}
-                </p>
-                <p>
-                  <span className="font-medium">Amount:</span> ${orderDetails.amount?.toLocaleString()}
-                </p>
-                <p>
-                  <span className="font-medium">Date:</span> {new Date(orderDetails.createdAt).toLocaleString()}
-                </p>
-              </>
-            ) : (
-              <p>Order details not available</p>
-            )}
-          </div>
-
-          <p className="text-sm text-gray-500">
-            A confirmation email has been sent to your email address.
-          </p>
-        </CardContent>
-        <CardFooter className="flex justify-center space-x-4">
-          <Button asChild>
-            <Link href="/gallery">Continue Shopping</Link>
-          </Button>
-          {orderDetails?.artwork?.id && (
-            <Button variant="outline" asChild>
-              <Link href={`/gallery/${orderDetails.artwork.id}`}>View Artwork</Link>
-            </Button>
+    <div className="container mx-auto pt-28 py-16 px-4">
+      <div className="max-w-md mx-auto text-center">
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+          <CheckCircle2 className="h-6 w-6 text-green-600" />
+        </div>
+        <h1 className="text-3xl font-bold mb-4">Payment Successful!</h1>
+        <p className="text-lg mb-6">
+          Thank you for your purchase. Your transaction has been completed successfully.
+        </p>
+        
+        <div className="bg-gray-50 p-4 rounded-lg mb-6">
+          <h3 className="font-medium text-gray-700 mb-2">Order Details</h3>
+          {txRef && (
+            <p className="text-sm text-gray-600">
+              Transaction reference: <span className="font-mono">{txRef}</span>
+            </p>
           )}
-        </CardFooter>
-      </Card>
+          {artworkId && (
+            <p className="text-sm text-gray-600 mt-2">
+              Artwork ID: <span className="font-mono">{artworkId}</span>
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <Button asChild className="w-full">
+            <Link href="/gallery">Back to Gallery</Link>
+          </Button>
+          <Button variant="outline" asChild className="w-full">
+            <Link href="/account/orders">View Your Orders</Link>
+          </Button>
+        </div>
+
+        <div className="mt-8 text-sm text-gray-500">
+          <p>A confirmation email has been sent to your registered email address.</p>
+          <p className="mt-2">For any questions, please contact our support team.</p>
+        </div>
+      </div>
     </div>
-  )
+  );
 }

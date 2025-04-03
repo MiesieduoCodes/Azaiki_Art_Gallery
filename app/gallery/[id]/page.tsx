@@ -19,7 +19,8 @@ interface Artwork {
   medium?: string;
   dimension?: string;
   category?: string;
-  price?: number;
+  price_naira: number;
+  sold: boolean;
   imageUrl: string;
 }
 
@@ -43,7 +44,6 @@ export default function ArtworkPage() {
       return;
     }
 
-    // Fetch artwork data
     const artworkRef = ref(database, `artworks/${id}`);
     onValue(artworkRef, (snapshot) => {
       const data = snapshot.val();
@@ -58,12 +58,12 @@ export default function ArtworkPage() {
           medium: data.medium || "",
           dimension: data.dimensions || "",
           category: data.category || "",
-          price: data.price || 0,
+          price_naira: data.price_naira || 0,
+          sold: data.sold || false,
           imageUrl: data.image || "/placeholder.svg",
         };
         setArtwork(fetchedArtwork);
 
-        // Fetch artist data if artistId exists
         if (fetchedArtwork.artistId) {
           const artistRef = ref(database, `artists/${fetchedArtwork.artistId}`);
           onValue(artistRef, (artistSnapshot) => {
@@ -77,22 +77,21 @@ export default function ArtworkPage() {
               };
               setArtist(fetchedArtist);
             }
-          }, (error) => {
-            console.error("Error fetching artist:", error);
           });
         }
       } else {
         router.push("/gallery");
       }
       setLoading(false);
-    }, (error) => {
-      console.error("Error fetching artwork:", error);
-      setLoading(false);
     });
   }, [id, router]);
 
   const handleBuyClick = () => {
-    if (!artwork?.price || artwork.price <= 0) {
+    if (artwork?.sold) {
+      alert("This artwork has already been sold");
+      return;
+    }
+    if (!artwork?.price_naira || artwork.price_naira <= 0) {
       alert("This artwork is not available for purchase");
       return;
     }
@@ -118,35 +117,24 @@ export default function ArtworkPage() {
       </Button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Artwork Image */}
         <div className="relative aspect-square w-full overflow-hidden rounded-lg">
-          {artwork.imageUrl ? (
-            <Image
-              src={artwork.imageUrl}
-              alt={artwork.title}
-              fill
-              className="object-contain"
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              No Image
-            </div>
-          )}
+          <Image
+            src={artwork.imageUrl}
+            alt={artwork.title}
+            fill
+            className="object-contain"
+            priority
+          />
         </div>
 
-        {/* Artwork Details */}
         <div>
           <h1 className="text-3xl font-bold mb-2">{artwork.title}</h1>
           <p className="text-xl mb-4">
-            By{" "}
-            {artist ? (
+            By {artist ? (
               <Link href={`/artists/${artist.id}`} className="hover:underline font-medium">
                 {artist.name}
               </Link>
-            ) : (
-              artwork.artistName || "Unknown Artist"
-            )}
+            ) : artwork.artistName || "Unknown Artist"}
           </p>
 
           {artwork.year && <p className="text-lg mb-6">Created in {artwork.year}</p>}
@@ -162,42 +150,36 @@ export default function ArtworkPage() {
                 <p>{artwork.medium}</p>
               </div>
             )}
-
             {artwork.dimension && (
               <div>
                 <h3 className="font-semibold text-sm text-muted-foreground">Dimensions</h3>
                 <p>{artwork.dimension}</p>
               </div>
             )}
-
             {artwork.category && (
               <div>
                 <h3 className="font-semibold text-sm text-muted-foreground">Category</h3>
-                <p>{artwork.category.charAt(0).toUpperCase() + artwork.category.slice(1).replace("-", " ")}</p>
+                <p>{artwork.category.charAt(0).toUpperCase() + artwork.category.slice(1)}</p>
               </div>
             )}
-
-            {artwork.price && (
+            {artwork.price_naira > 0 && (
               <div>
                 <h3 className="font-semibold text-sm text-muted-foreground">Price</h3>
-                <p>${artwork.price.toLocaleString()}</p>
+                <p>₦{artwork.price_naira.toLocaleString()}</p>
               </div>
             )}
           </div>
 
-          {/* Buy Button - Positioned prominently */}
           <div className="mb-8">
             <Button
               size="lg"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-lg"
               onClick={handleBuyClick}
-              disabled={!artwork.price || artwork.price <= 0}
+              disabled={artwork.sold || !artwork.price_naira || artwork.price_naira <= 0}
             >
-              {artwork.price && artwork.price > 0 ? (
-                `Buy Now - $${artwork.price.toLocaleString()}`
-              ) : (
-                "Not Available for Purchase"
-              )}
+              {artwork.sold ? "Sold - Unavailable" : 
+               artwork.price_naira > 0 ? `Buy Now - ₦${artwork.price_naira.toLocaleString()}` : 
+               "Not Available for Purchase"}
             </Button>
           </div>
 

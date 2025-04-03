@@ -1,119 +1,116 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, Loader2 } from "lucide-react"
-import Link from "next/link"
-import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { toast } from "@/components/ui/use-toast"
-import { z } from "zod"
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "@/components/ui/use-toast";
+import { z } from "zod";
+import { ref, onValue } from "firebase/database";
+import { database } from "@/lib/firebase/config";
 
-// Define validation schemas
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  country: z.string().optional(),
-})
+  address: z.string().min(5, "Address must be at least 5 characters"),
+  city: z.string().min(2, "City must be at least 2 characters"),
+  country: z.string().min(2, "Country must be at least 2 characters"),
+});
 
 interface Artwork {
-  id: string
-  title: string
-  price: number
+  id: string;
+  title: string;
+  price_naira: number;
+  sold: boolean;
   artist?: {
-    name: string
-  }
-  imageUrl?: string
+    name: string;
+  };
+  imageUrl?: string;
 }
 
 interface FormData {
-  name: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  country: string
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
 }
 
 export default function PaymentPage() {
-  const { id } = useParams<{ id: string }>()
-  const [artwork, setArtwork] = useState<Artwork | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
-  const [isProcessing, setIsProcessing] = useState(false)
+  const { id } = useParams<{ id: string }>();
+  const [artwork, setArtwork] = useState<Artwork | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     phone: "",
     address: "",
     city: "",
-    country: "",
-  })
-  const router = useRouter()
+    country: "Nigeria",
+  });
+  const router = useRouter();
 
   useEffect(() => {
     if (!id) {
-      router.push("/gallery")
-      return
+      router.push("/gallery");
+      return;
     }
 
-    const fetchArtwork = async () => {
-      try {
-        setLoading(true)
-        const res = await fetch(`/api/artworks/${id}`)
-        if (!res.ok) throw new Error("Failed to fetch artwork")
-        const data = await res.json()
-        setArtwork(data)
-      } catch (error) {
-        console.error("Error fetching artwork:", error)
-        toast({
-          title: "Error",
-          description: "Failed to load artwork details",
-          variant: "destructive",
-        })
-      } finally {
-        setLoading(false)
+    const artworkRef = ref(database, `artworks/${id}`);
+    onValue(artworkRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setArtwork({
+          id: id as string,
+          title: data.title || "",
+          price_naira: data.price_naira || 0,
+          sold: data.sold || false,
+          imageUrl: data.image || "/placeholder.svg",
+        });
+      } else {
+        router.push("/gallery");
       }
-    }
-
-    fetchArtwork()
-  }, [id, router])
+      setLoading(false);
+    });
+  }, [id, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
-    }))
-    // Clear error when user types
+    }));
     if (formErrors[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: "" }))
+      setFormErrors(prev => ({ ...prev, [name]: "" }));
     }
-  }
+  };
 
   const validateForm = () => {
     try {
-      formSchema.parse(formData)
-      return true
+      formSchema.parse(formData);
+      return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errors = error.flatten().fieldErrors
+        const errors = error.flatten().fieldErrors;
         const formattedErrors = Object.entries(errors).reduce((acc, [key, value]) => {
-          acc[key] = value?.[0] || ""
-          return acc
-        }, {} as Record<string, string>)
-        setFormErrors(formattedErrors)
+          acc[key] = value?.[0] || "";
+          return acc;
+        }, {} as Record<string, string>);
+        setFormErrors(formattedErrors);
       }
-      return false
+      return false;
     }
-  }
+  };
 
   const saveOrder = async (paymentDetails: any) => {
     try {
@@ -126,94 +123,117 @@ export default function PaymentPage() {
           artworkId: id,
           customer: formData,
           paymentDetails,
-          amount: artwork?.price,
+          amount: artwork?.price_naira,
           artworkTitle: artwork?.title,
         }),
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to save order")
-      return await response.json()
+      if (!response.ok) throw new Error("Failed to save order");
+      return await response.json();
     } catch (error) {
-      console.error("Error saving order:", error)
-      throw error
+      console.error("Error saving order:", error);
+      throw error;
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsProcessing(true)
+    e.preventDefault();
+    setIsProcessing(true);
 
     if (!validateForm()) {
-      setIsProcessing(false)
-      return
+      setIsProcessing(false);
+      return;
     }
 
-    if (!artwork?.price || artwork.price <= 0) {
+    if (!artwork) {
+      toast({
+        title: "Error",
+        description: "Artwork not found",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+      return;
+    }
+
+    if (artwork.sold) {
+      toast({
+        title: "Error",
+        description: "This artwork has already been sold",
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+      return;
+    }
+
+    if (!artwork.price_naira || artwork.price_naira <= 0) {
       toast({
         title: "Error",
         description: "Invalid artwork price",
         variant: "destructive",
-      })
-      setIsProcessing(false)
-      return
+      });
+      setIsProcessing(false);
+      return;
     }
 
+    const flutterwaveConfig = {
+      public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY!,
+      tx_ref: `art_${id}_${Date.now()}`,
+      amount: artwork.price_naira,
+      currency: "NGN",
+      payment_options: "card,account,ussd",
+      customer: {
+        email: formData.email,
+        phone_number: formData.phone,
+        name: formData.name,
+      },
+      customizations: {
+        title: "Artwork Purchase",
+        description: `Payment for ${artwork.title}`,
+        logo: artwork.imageUrl || "/logo.png",
+      },
+    };
+
+    const handleFlutterwavePayment = useFlutterwave(flutterwaveConfig);
+
     try {
-      const config = {
-        public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY!,
-        tx_ref: `art-${id}-${Date.now()}`,
-        amount: artwork.price,
-        currency: "USD",
-        payment_options: "card,mobilemoney,ussd",
-        customer: {
-          email: formData.email,
-          phone_number: formData.phone,
-          name: formData.name,
-        },
-        customizations: {
-          title: "Art Gallery Payment",
-          description: `Payment for ${artwork.title}`,
-          logo: "/logo.png", // Update with your logo path
-        },
-        meta: {
-          artwork_id: id,
-          customer_name: formData.name,
-        },
-      }
-
-      const handleFlutterPayment = useFlutterwave(config)
-
-      handleFlutterPayment({
+      handleFlutterwavePayment({
         callback: async (response) => {
           if (response.status === "successful") {
             try {
-              await saveOrder(response)
-              closePaymentModal()
-              router.push(`/payment/success?reference=${response.transaction_id}&artworkId=${id}`)
+              await saveOrder(response);
+              closePaymentModal();
+              router.push(`/payment/success?tx_ref=${response.tx_ref}&artwork_id=${id}`);
             } catch (error) {
-              console.error("Error processing payment:", error)
+              console.error("Error processing payment:", error);
               toast({
                 title: "Error",
                 description: "Payment succeeded but we encountered an issue saving your order",
                 variant: "destructive",
-              })
+              });
             }
+          } else {
+            toast({
+              title: "Payment Failed",
+              description: "Your payment was not successful",
+              variant: "destructive",
+            });
           }
+          setIsProcessing(false);
         },
         onClose: () => {
-          setIsProcessing(false)
+          setIsProcessing(false);
         },
-      })
+      });
     } catch (error) {
-      console.error("Payment error:", error)
+      console.error("Payment error:", error);
       toast({
         title: "Error",
         description: "Failed to initialize payment",
         variant: "destructive",
-      })
-      setIsProcessing(false)
+      });
+      setIsProcessing(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -221,7 +241,7 @@ export default function PaymentPage() {
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="text-lg">Loading artwork details...</p>
       </div>
-    )
+    );
   }
 
   if (!artwork) {
@@ -232,14 +252,14 @@ export default function PaymentPage() {
           Back to Gallery
         </Button>
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-6">
         <Button variant="ghost" asChild>
-          <Link href={`/gallery/${id}`} className="flex items-center">
+          <Link href={`/artworks/${id}`} className="flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Artwork
           </Link>
@@ -249,7 +269,6 @@ export default function PaymentPage() {
       <h1 className="text-3xl font-bold mb-8">Complete Your Purchase</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Checkout Form */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -305,34 +324,46 @@ export default function PaymentPage() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Shipping Address</Label>
+                    <Label htmlFor="address">Shipping Address *</Label>
                     <Input
                       id="address"
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
+                      className={formErrors.address ? "border-destructive" : ""}
                     />
+                    {formErrors.address && (
+                      <p className="text-sm text-destructive">{formErrors.address}</p>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
+                    <Label htmlFor="city">City *</Label>
                     <Input
                       id="city"
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
+                      className={formErrors.city ? "border-destructive" : ""}
                     />
+                    {formErrors.city && (
+                      <p className="text-sm text-destructive">{formErrors.city}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
+                    <Label htmlFor="country">Country *</Label>
                     <Input
                       id="country"
                       name="country"
                       value={formData.country}
                       onChange={handleInputChange}
+                      className={formErrors.country ? "border-destructive" : ""}
                     />
+                    {formErrors.country && (
+                      <p className="text-sm text-destructive">{formErrors.country}</p>
+                    )}
                   </div>
                 </div>
 
@@ -341,13 +372,15 @@ export default function PaymentPage() {
                     type="submit"
                     className="w-full"
                     size="lg"
-                    disabled={isProcessing}
+                    disabled={isProcessing || artwork.sold}
                   >
                     {isProcessing ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Processing...
                       </>
+                    ) : artwork.sold ? (
+                      "Artwork Sold Out"
                     ) : (
                       "Proceed to Payment"
                     )}
@@ -358,7 +391,6 @@ export default function PaymentPage() {
           </Card>
         </div>
 
-        {/* Order Summary */}
         <div>
           <Card className="sticky top-8">
             <CardHeader>
@@ -383,7 +415,7 @@ export default function PaymentPage() {
                     </p>
                   </div>
                   <div className="ml-auto font-medium">
-                    ${artwork.price.toLocaleString()}
+                    ₦{artwork.price_naira.toLocaleString()}
                   </div>
                 </div>
 
@@ -392,7 +424,7 @@ export default function PaymentPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${artwork.price.toLocaleString()}</span>
+                    <span>₦{artwork.price_naira.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
@@ -404,7 +436,7 @@ export default function PaymentPage() {
 
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span>${artwork.price.toLocaleString()}</span>
+                  <span>₦{artwork.price_naira.toLocaleString()}</span>
                 </div>
               </div>
             </CardContent>
@@ -425,5 +457,5 @@ export default function PaymentPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
