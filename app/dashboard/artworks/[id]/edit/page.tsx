@@ -199,13 +199,22 @@ export default function EditArtworkPage() {
                 />
               </div>
               <div className="flex items-center justify-between space-y-2">
-                <Label htmlFor="sold">Sold</Label>
-                <Switch
-                  id="sold"
-                  checked={formData.sold}
-                  onCheckedChange={handleSwitchChange}
-                />
-              </div>
+  <Label htmlFor="sold" className="text-lg font-medium text-gray-700">
+    Sold
+  </Label>
+  <Switch
+    id="sold"
+    checked={formData.sold}
+    onCheckedChange={handleSwitchChange}
+    className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out 
+      ${formData.sold ? 'bg-green-600' : 'bg-red-400'}`}
+  >
+    <span
+      className={`inline-block w-5 h-5 transform transition-transform duration-200 ease-in-out 
+        ${formData.sold ? 'translate-x-6 bg-white' : 'translate-x-1 bg-gray-200'} rounded-full`}
+    />
+  </Switch>
+</div>
             </div>
 
             <div className="space-y-2">
