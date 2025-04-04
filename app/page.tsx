@@ -131,7 +131,7 @@ export default function Home() {
             </div>
 
             <div className="text-center mt-12">
-              <Link href="/collections" className="btn-primary">
+              <Link href="/" className="btn-primary">
                 View All Collections
               </Link>
             </div>
