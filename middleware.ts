@@ -1,24 +1,24 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // For Firebase, we'll need to check for the session cookie
-  // This is a simplified version - in a real app, you'd verify the Firebase session
-  const authCookie = request.cookies.get("__session")
+  const path = request.nextUrl.pathname;
+  const isPublicPath = ['/login', '/signup'].includes(path);
+  const token = request.cookies.get('your-auth-token')?.value || '';
 
-  // Check if the user is trying to access an admin route
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    // If there's no auth cookie, redirect to login
-    if (!authCookie) {
-      const loginUrl = new URL("/auth/login", request.url)
-      return NextResponse.redirect(loginUrl)
-    }
+  // Redirect to login if trying to access protected path without auth
+  if (!isPublicPath && !token) {
+    return NextResponse.redirect(new URL('/login', request.nextUrl));
   }
 
-  return NextResponse.next()
+  // Redirect away from login if already authenticated
+  if (isPublicPath && token) {
+    return NextResponse.redirect(new URL('/dashboard', request.nextUrl));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
-}
-
+  matcher: ['/dashboard', '/login', '/signup'],
+};

@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,8 +8,6 @@ import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { initializeDatabase } from "@/lib/firebase/init-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-
-// Assuming you have a custom useAuth hook that returns { currentUser, loading }
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardPageClient() {
@@ -19,13 +16,28 @@ export default function DashboardPageClient() {
   const { currentUser, loading } = useAuth();
   const router = useRouter();
 
-  // Redirect if not authenticated after loading
   useEffect(() => {
+    // If not loading and no user, redirect to login
     if (!loading && !currentUser) {
       router.push("/login");
     }
   }, [currentUser, loading, router]);
 
+  // Show only loading indicator if still checking auth state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // If not loading but no user (will redirect from useEffect above)
+  if (!currentUser) {
+    return null; // or a very brief loading indicator
+  }
+
+  // Rest of your component logic for when user is authenticated
   useEffect(() => {
     const init = async () => {
       try {
@@ -38,19 +50,8 @@ export default function DashboardPageClient() {
       }
     };
 
-    if (currentUser && !loading) {
-      init();
-    }
-  }, [currentUser, loading]);
-
-  // Show a loader while waiting for authentication status
-  if (loading || !currentUser) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+    init();
+  }, []);
 
   return (
     <div className="flex flex-col pt-24 gap-4">
@@ -62,7 +63,7 @@ export default function DashboardPageClient() {
         <Alert className="mb-4">
           <AlertTitle>Database Initialized</AlertTitle>
           <AlertDescription>
-            Your database has been initialized with sample data. You can now start managing your artists and artworks.
+            Your database has been initialized with sample data.
           </AlertDescription>
         </Alert>
       ) : null}

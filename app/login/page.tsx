@@ -24,7 +24,7 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-8 p-4 border rounded shadow">
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto pt-44 mt-8 p-4 border rounded shadow">
       <h2 className="text-2xl font-bold mb-4">Admin Login</h2>
       <div className="mb-4">
         <label className="block mb-1">Email:</label>
