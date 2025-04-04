@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Overview } from "@/components/dashboard/overview";
 import { RecentArtworks } from "@/components/dashboard/recent-artworks";
@@ -8,12 +9,22 @@ import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { initializeDatabase } from "@/lib/firebase/init-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+
+// Assuming you have a custom useAuth hook that returns { currentUser, loading }
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardPageClient() {
   const [initializing, setInitializing] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
+  // Redirect if not authenticated after loading
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push("/login");
+    }
+  }, [currentUser, loading, router]);
 
   useEffect(() => {
     const init = async () => {
@@ -32,6 +43,7 @@ export default function DashboardPageClient() {
     }
   }, [currentUser, loading]);
 
+  // Show a loader while waiting for authentication status
   if (loading || !currentUser) {
     return (
       <div className="flex items-center justify-center min-h-screen">
