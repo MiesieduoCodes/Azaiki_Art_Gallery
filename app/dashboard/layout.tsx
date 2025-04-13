@@ -1,12 +1,17 @@
-"use client";
+import type { ReactNode } from "react"
+import { AuthProvider } from "@/components/auth-provider"
+import { AuthGuard } from "@/components/auth-guard"
 
-import React from "react";
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
-
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-
-        <DashboardLayout>{children}</DashboardLayout>
-
-  );
+    <AuthProvider>
+      <AuthGuard>
+        <div className="flex min-h-screen flex-col">
+          <div className="flex flex-1">
+            <main className="flex-1 p-6">{children}</main>
+          </div>
+        </div>
+      </AuthGuard>
+    </AuthProvider>
+  )
 }

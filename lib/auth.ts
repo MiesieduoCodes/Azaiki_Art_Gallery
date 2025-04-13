@@ -1,33 +1,91 @@
-'use server'
+// This is a simplified auth service - replace with your actual authentication logic
 
-import { cookies } from 'next/headers';
+type User = {
+  id: string
+  email: string
+  name?: string
+  role: string
+}
 
-const ADMIN_EMAIL = 'admin@admin.com';
-const ADMIN_PASSWORD = 'Admin@123';
-const AUTH_COOKIE_NAME = 'auth-token';
+class AuthService {
+  async login(email: string, password: string): Promise<User> {
+    try {
+      // Replace with your actual API call
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
 
-export async function login(email: string, password: string): Promise<boolean> {
-  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    // No need to await cookies() - it's synchronous in current Next.js versions
-    cookies().set({
-      name: AUTH_COOKIE_NAME,
-      value: 'authenticated',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 1 day
-      path: '/',
-    });
-    return true;
+      if (!response.ok) {
+        throw new Error("Login failed")
+      }
+
+      const data = await response.json()
+
+      // Store auth token in cookie
+      document.cookie = `auth-token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`
+
+      return data.user
+    } catch (error) {
+      console.error("Login error:", error)
+      throw error
+    }
   }
-  return false;
+
+  async logout(): Promise<void> {
+    try {
+      // Replace with your actual API call
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      })
+
+      // Remove auth token from cookie
+      document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
+  }
+
+  async getCurrentUser(): Promise<User | null> {
+    try {
+      // Check if we have a token
+      const token = this.getAuthToken()
+      if (!token) {
+        return null
+      }
+
+      // Replace with your actual API call
+      const response = await fetch("/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to get current user")
+      }
+
+      const data = await response.json()
+      return data.user
+    } catch (error) {
+      console.error("Get current user error:", error)
+      return null
+    }
+  }
+
+  getAuthToken(): string | null {
+    const cookies = document.cookie.split(";")
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split("=")
+      if (name === "auth-token") {
+        return value
+      }
+    }
+    return null
+  }
 }
 
-export async function logout(): Promise<void> {
-  cookies().delete(AUTH_COOKIE_NAME);
-}
-
-export async function checkAuth(): Promise<boolean> {
-  const authCookie = cookies().get(AUTH_COOKIE_NAME);
-  return authCookie?.value === 'authenticated';
-}
+export const auth = new AuthService()

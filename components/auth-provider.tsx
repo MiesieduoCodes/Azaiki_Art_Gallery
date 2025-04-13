@@ -1,73 +1,74 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react"
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from "firebase/auth"
+import type React from "react"
+
+import { createContext, useContext, useEffect, useState } from "react"
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase/config"
 
-// Define the context type
-interface AuthContextType {
+type User = {
+  uid: string
+  email: string | null
+  displayName: string | null
+  photoURL: string | null
+}
+
+type AuthContextType = {
   user: User | null
   loading: boolean
-  login: (email: string, password: string) => Promise<User>
+  login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
 
-// Create context with proper typing
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  login: async () => {
-    // This is just a placeholder that matches the type
-    throw new Error("Login function not implemented")
-  },
-  logout: async () => {
-    throw new Error("Logout function not implemented")
-  },
-})
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Define props for AuthProvider
-interface AuthProviderProps {
-  children: ReactNode
-}
-
-export const useAuth = () => useContext(AuthContext)
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user)
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+        })
+      } else {
+        setUser(null)
+      }
       setLoading(false)
     })
 
     return () => unsubscribe()
   }, [])
 
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (email: string, password: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      return userCredential.user
+      await signInWithEmailAndPassword(auth, email, password)
     } catch (error) {
+      console.error("Login error:", error)
       throw error
     }
   }
 
-  const logout = async (): Promise<void> => {
+  const logout = async () => {
     try {
       await signOut(auth)
     } catch (error) {
+      console.error("Logout error:", error)
       throw error
     }
   }
 
-  const value = {
-    user,
-    loading,
-    login,
-    logout,
-  }
+  return <AuthContext.Provider value={{ user, loading, login, logout }}>{children}</AuthContext.Provider>
+}
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider")
+  }
+  return context
 }
