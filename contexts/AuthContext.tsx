@@ -1,111 +1,84 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { auth } from '@/lib/firebase/config';
-import { 
-  onAuthStateChanged, 
-  User, 
-  signInWithEmailAndPassword, 
-  signOut,
-  AuthError 
-} from 'firebase/auth';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { login as serverLogin, logout as serverLogout, checkAuth } from '@/lib/auth';
 
 interface AuthContextType {
-  currentUser: User | null;
+  isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  currentUser: null,
+  isAuthenticated: false,
   loading: true,
-  login: async () => {},
+  login: async () => false,
   logout: async () => {},
   error: null
 });
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-      setError(null);
-    });
-
-    return unsubscribe;
+    async function verifyAuth() {
+      try {
+        const authenticated = await checkAuth();
+        setIsAuthenticated(authenticated);
+      } catch (err) {
+        setError('Session verification failed');
+      } finally {
+        setLoading(false);
+      }
+    }
+    verifyAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      
-      // Directly use Firebase authentication without hardcoded check
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-      const error = err as AuthError;
-      let errorMessage = 'Invalid email or password';
-      
-      // Provide more specific error messages
-      if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email format';
-      } else if (error.code === 'auth/user-not-found') {
-        errorMessage = 'User not found';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password';
-      } else if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many attempts. Try again later';
+      const success = await serverLogin(email, password);
+      if (success) {
+        setIsAuthenticated(true);
+        router.push('/dashboard');
+        return true;
+      } else {
+        setError('Invalid email or password');
+        return false;
       }
-      
-      setError(errorMessage);
-      throw error;
+    } catch (err) {
+      setError('Login failed. Please try again.');
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
   const logout = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      await signOut(auth);
+      await serverLogout();
+      setIsAuthenticated(false);
+      router.push('/login');
     } catch (err) {
-      const error = err as AuthError;
-      setError(error.message || 'Logout failed');
-      throw error;
+      setError('Logout failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const value = {
-    currentUser,
-    loading,
-    login,
-    logout,
-    error
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ isAuthenticated, loading, login, logout, error }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+export const useAuth = () => useContext(AuthContext);

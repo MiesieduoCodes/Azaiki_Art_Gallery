@@ -23,8 +23,8 @@ const navigation = [
     name: "More",
     href: "#",
     children: [
-      { name: "Public Library", href: "https://www.azaikipubliclibrary.org.ng/" },
-      { name: "Science Institute", href: "/" },
+      { name: " Azaiki Public Library", href: "https://www.azaikipubliclibrary.org.ng/" },
+      { name: "Azaiki Institute Of Science And Technology", href: "/" },
     ],
   },
   { name: "Contact", href: "/contact" },

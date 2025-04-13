@@ -2,8 +2,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation } from "framer-motion"
 import { useInView } from "react-intersection-observer";
+import {DonationSection} from "@/components/DonateSection"; 
 import { useEffect, ReactNode } from "react";
 
 // Reusable Animated Section Component
@@ -138,6 +139,12 @@ export default function Home() {
           </div>
         </section>
       </AnimatedSection>
+
+
+      <AnimatedSection>
+      <DonationSection/>
+        </AnimatedSection>
+
 
       {/* Visit Us */}
       <AnimatedSection delay={0.4}>
