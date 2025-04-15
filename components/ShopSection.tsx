@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ref, get } from "firebase/database";
-import { database } from "@/lib/firebase/config"; // Import the initialized database
+import { database } from "@/lib/firebase/config";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,7 +24,7 @@ export default function GalleryPage() {
 
   useEffect(() => {
     const fetchArtworks = async () => {
-      const artworksRef = ref(database, "artworks"); // Use the initialized database
+      const artworksRef = ref(database, "artworks");
 
       try {
         const snapshot = await get(artworksRef);
@@ -66,7 +66,6 @@ export default function GalleryPage() {
   if (isLoading) {
     return (
       <div className="bg-white">
-
         {/* Loading Skeleton */}
         <div className="container-custom py-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -87,125 +86,156 @@ export default function GalleryPage() {
 
   return (
     <div className="bg-white">
-      {/* Gallery Grid */}
-      <section className="py-12">
-      <div className="container-custom">
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    {currentArtworks.map((artwork) => (
-      <div key={artwork.id}>
-        <Link href={`/gallery/${artwork.id}`} className="block">
-          <div className="relative overflow-hidden rounded-lg shadow-md aspect-square">
-            <Image
-              src={artwork.imageUrl}
-              alt={artwork.title}
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
-              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <h3 className="text-lg font-bold">{artwork.title}</h3>
-                <p className="text-sm text-gray-200">{artwork.artist}</p>
-                <span className="inline-block mt-2 text-xs bg-blue-700 px-2 py-1 rounded-full">
-                  {artwork.category}
-                </span>
-              </div>
+      {/* New Header Section */}
+      <section className="relative bg-gray-900 text-white">
+        <div className="container-custom py-20 md:py-24 lg:py-32">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              Artworks for Sale
+            </h1>
+            <p className="text-lg md:text-xl text-gray-300 mb-8">
+              Discover our curated collection of unique artworks from talented artists worldwide.
+              Each piece is available for purchase and ready to enrich your space.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Link 
+                href="/artists" 
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition-colors"
+              >
+                Browse Artists
+              </Link>
+              <Link 
+                href="/categories" 
+                className="px-6 py-3 bg-transparent border border-white hover:bg-white hover:text-gray-900 rounded-md font-medium transition-colors"
+              >
+                View Categories
+              </Link>
             </div>
           </div>
-        </Link>
-      </div>
-    ))}
-  </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+      </section>
 
-  {/* Pagination */}
-  <div className="mt-12 flex justify-center">
-    <nav className="flex items-center gap-1">
-      {/* Previous Button - Always visible */}
-      <button
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <span className="sr-only md:not-sr-only">Previous</span>
-        <span className="md:sr-only">←</span>
-      </button>
+      {/* Gallery Grid */}
+      <section className="py-12">
+        <div className="container-custom">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Featured Artworks
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Explore our selection of {artworks.length} unique pieces. 
+              Each artwork tells a story and brings beauty to any space.
+            </p>
+          </div>
 
-      {/* First Page - Always visible */}
-      <button
-        onClick={() => handlePageChange(1)}
-        className={`px-3 py-1 border border-gray-300 rounded-md ${
-          currentPage === 1
-            ? "bg-blue-700 text-white"
-            : "text-gray-600"
-        }`}
-      >
-        1
-      </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentArtworks.map((artwork) => (
+              <div key={artwork.id}>
+                <Link href={`/gallery/${artwork.id}`} className="block">
+                  <div className="relative overflow-hidden rounded-lg shadow-md aspect-square">
+                    <Image
+                      src={artwork.imageUrl}
+                      alt={artwork.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="text-lg font-bold">{artwork.title}</h3>
+                        <p className="text-sm text-gray-200">{artwork.artist}</p>
+                        <span className="inline-block mt-2 text-xs bg-blue-700 px-2 py-1 rounded-full">
+                          {artwork.category}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
 
-      {/* Ellipsis for large page ranges */}
-      {currentPage > 3 && totalPages > 5 && (
-        <span className="px-2">...</span>
-      )}
+          {/* Pagination */}
+          <div className="mt-12 flex justify-center">
+            <nav className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="sr-only md:not-sr-only">Previous</span>
+                <span className="md:sr-only">←</span>
+              </button>
 
-      {/* Dynamic middle pages - shown on larger screens */}
-      {Array.from({ length: totalPages }, (_, index) => {
-        const page = index + 1;
-        // Show only relevant pages on mobile
-        if (
-          (page >= currentPage - 1 && page <= currentPage + 1) ||
-          page === totalPages ||
-          page === 1
-        ) {
-          // Skip if we've already handled first/last page or it's out of range
-          if (page === 1 || page === totalPages) return null;
-          
-          return (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`hidden sm:block px-3 py-1 border border-gray-300 rounded-md ${
-                currentPage === page
-                  ? "bg-blue-700 text-white"
-                  : "text-gray-600"
-              }`}
-            >
-              {page}
-            </button>
-          );
-        }
-        return null;
-      })}
+              <button
+                onClick={() => handlePageChange(1)}
+                className={`px-3 py-1 border border-gray-300 rounded-md ${
+                  currentPage === 1
+                    ? "bg-blue-700 text-white"
+                    : "text-gray-600"
+                }`}
+              >
+                1
+              </button>
 
-      {/* Ellipsis for large page ranges */}
-      {currentPage < totalPages - 2 && totalPages > 5 && (
-        <span className="px-2 hidden sm:block">...</span>
-      )}
+              {currentPage > 3 && totalPages > 5 && (
+                <span className="px-2">...</span>
+              )}
 
-      {/* Last Page - Always visible if different from first */}
-      {totalPages > 1 && (
-        <button
-          onClick={() => handlePageChange(totalPages)}
-          className={`px-3 py-1 border border-gray-300 rounded-md ${
-            currentPage === totalPages
-              ? "bg-blue-700 text-white"
-              : "text-gray-600"
-          }`}
-        >
-          {totalPages}
-        </button>
-      )}
+              {Array.from({ length: totalPages }, (_, index) => {
+                const page = index + 1;
+                if (
+                  (page >= currentPage - 1 && page <= currentPage + 1) ||
+                  page === totalPages ||
+                  page === 1
+                ) {
+                  if (page === 1 || page === totalPages) return null;
+                  
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`hidden sm:block px-3 py-1 border border-gray-300 rounded-md ${
+                        currentPage === page
+                          ? "bg-blue-700 text-white"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                }
+                return null;
+              })}
 
-      {/* Next Button - Always visible */}
-      <button
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <span className="sr-only md:not-sr-only">Next</span>
-        <span className="md:sr-only">→</span>
-      </button>
-    </nav>
-  </div>
-</div>
+              {currentPage < totalPages - 2 && totalPages > 5 && (
+                <span className="px-2 hidden sm:block">...</span>
+              )}
+
+              {totalPages > 1 && (
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  className={`px-3 py-1 border border-gray-300 rounded-md ${
+                    currentPage === totalPages
+                      ? "bg-blue-700 text-white"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              )}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="sr-only md:not-sr-only">Next</span>
+                <span className="md:sr-only">→</span>
+              </button>
+            </nav>
+          </div>
+        </div>
       </section>
     </div>
   );
