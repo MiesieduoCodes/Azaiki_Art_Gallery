@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
+import emailjs from "emailjs-com"; // Import EmailJS
 
 interface FlutterwaveConfig {
   public_key: string;
@@ -28,8 +29,10 @@ export const DonationSection = () => {
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [artworkDetails, setArtworkDetails] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [donationType, setDonationType] = useState<"money" | "artwork">("money");
 
   const validatePhoneNumber = (phone: string) => {
     const regex = /^(0|234)(7|8|9)(0|1)\d{8}$/;
@@ -67,39 +70,68 @@ export const DonationSection = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!amount || !name || !email || !phone) {
-      setMessage("Please fill all required fields");
-      setIsLoading(false);
-      return;
-    }
+    if (donationType === "money") {
+      if (!amount || !name || !email || !phone) {
+        setMessage("Please fill all required fields for monetary donation");
+        setIsLoading(false);
+        return;
+      }
 
-    if (!validatePhoneNumber(phone)) {
-      setMessage("Please enter a valid Nigerian phone number (e.g., 08012345678)");
-      setIsLoading(false);
-      return;
-    }
+      if (!validatePhoneNumber(phone)) {
+        setMessage("Please enter a valid Nigerian phone number (e.g., 08012345678)");
+        setIsLoading(false);
+        return;
+      }
 
-    handleFlutterPayment({
-      callback: (response) => {
-        console.log(response);
-        if (response.status === "successful") {
+      handleFlutterPayment({
+        callback: (response) => {
+          console.log(response);
+          if (response.status === "successful") {
+            setIsSuccess(true);
+            setAmount("");
+            setName("");
+            setEmail("");
+            setPhone("");
+            setMessage("");
+          } else {
+            setMessage("Payment was not successful. Please try again.");
+          }
+          closePaymentModal();
+          setIsLoading(false);
+        },
+        onClose: () => {
+          setIsLoading(false);
+          setMessage("Payment window was closed");
+        },
+      });
+    } else {
+      // Handle artwork donation logic here (send email)
+      const templateParams = {
+        name,
+        email,
+        phone,
+        artworkDetails,
+        message,
+      };
+
+      emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", templateParams, "YOUR_USER_ID")
+        .then((response) => {
+          console.log("Email sent successfully!", response.status, response.text);
           setIsSuccess(true);
-          setAmount("");
+          setArtworkDetails("");
           setName("");
           setEmail("");
           setPhone("");
           setMessage("");
-        } else {
-          setMessage("Payment was not successful. Please try again.");
-        }
-        closePaymentModal();
-        setIsLoading(false);
-      },
-      onClose: () => {
-        setIsLoading(false);
-        setMessage("Payment window was closed");
-      },
-    });
+        })
+        .catch((error) => {
+          console.error("Failed to send email:", error);
+          setMessage("Failed to send your artwork donation. Please try again.");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   };
 
   const presetAmounts = [1000, 5000, 10000, 20000, 50000];
@@ -138,44 +170,93 @@ export const DonationSection = () => {
                   {message}
                 </div>
               )}
+              
+              {/* Donation Type Selection */}
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Select Donation Type</h3>
+                <div className="flex space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => setDonationType("money")}
+                    className={`py-2 px-4 rounded-md border ${
+                      donationType === "money"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-blue-500"
+                    } transition-colors`}
+                  >
+                    Monetary Donation
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDonationType("artwork")}
+                    className={`py-2 px-4 rounded-md border ${
+                      donationType === "artwork"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-blue-500"
+                    } transition-colors`}
+                  >
+                    Artwork Donation
+                  </button>
+                </div>
+              </div>
+
               <form onSubmit={handleSubmit}>
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Select an amount (₦)</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                    {presetAmounts.map((preset) => (
-                      <button
-                        key={preset}
-                        type="button"
-                        onClick={() => setAmount(preset.toString())}
-                        className={`py-2 px-4 rounded-md border ${
-                          amount === preset.toString()
-                            ? "bg-blue-600 text-white border-blue-600"
-                            : "bg-white text-gray-700 border-gray-300 hover:border-blue-500"
-                        } transition-colors`}
-                      >
-                        {preset.toLocaleString()}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <label htmlFor="customAmount" className="block text-sm font-medium text-gray-700 mb-1">
-                      Or enter a custom amount
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₦</span>
-                      <input
-                        type="number"
-                        id="customAmount"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Amount"
-                        min="100"
-                        required
-                      />
+                {donationType === "money" && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">Select an amount (₦)</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                      {presetAmounts.map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => setAmount(preset.toString())}
+                          className={`py-2 px-4 rounded-md border ${
+                            amount === preset.toString()
+                              ? "bg-blue-600 text-white border-blue-600"
+                              : "bg-white text-gray-700 border-gray-300 hover:border-blue-500"
+                          } transition-colors`}
+                        >
+                          {preset.toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-3">
+                      <label htmlFor="customAmount" className="block text-sm font-medium text-gray-700 mb-1">
+                        Or enter a custom amount
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₦</span>
+                        <input
+                          type="number"
+                          id="customAmount"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Amount"
+                          min="100"
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {donationType === "artwork" && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">Artwork Donation Details</h3>
+                    <label htmlFor="artworkDetails" className="block text-sm font-medium text-gray-700 mb-1">
+                      Describe the artwork you wish to donate (Optional)
+                    </label>
+                    <textarea
+                      id="artworkDetails"
+                      value={artworkDetails}
+                      onChange={(e) => setArtworkDetails(e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Provide details about the artwork..."
+                    ></textarea>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
@@ -235,9 +316,6 @@ export const DonationSection = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">
-                    * Required fields. All donations are tax-deductible to the extent allowed by law.
-                  </p>
                   <button
                     type="submit"
                     disabled={isLoading}

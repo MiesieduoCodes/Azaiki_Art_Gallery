@@ -6,6 +6,7 @@ import { motion, useAnimation } from "framer-motion"
 import { useInView } from "react-intersection-observer";
 import {DonationSection} from "@/components/DonateSection"; 
 import { useEffect, ReactNode } from "react";
+import ShopSection from "@/components/ShopSection";
 
 // Reusable Animated Section Component
 const AnimatedSection = ({ children, delay = 0 }: { children: ReactNode; delay?: number }) => {
@@ -140,6 +141,10 @@ export default function Home() {
         </section>
       </AnimatedSection>
 
+      
+      <AnimatedSection>
+      <ShopSection/>
+        </AnimatedSection>
 
       <AnimatedSection>
       <DonationSection/>
