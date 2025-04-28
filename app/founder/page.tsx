@@ -135,9 +135,9 @@ const Page = () => {
   const { profileImage, coverImage, name, title, socialLinks, biography } = profile;
 
   return (
-    <div className="text-blue-900 min-h-screen bg-white">
+    <div className="text-gray-800 min-h-screen bg-white">
       {/* Cover Section */}
-      <motion.div className="relative  pt-36 pb-10 bg-cover bg-center bg-no-repeat text-white py-32 w-full shadow-lg" style={{ backgroundImage: `url(${coverImage})` }}>
+      <motion.div className="relative pt-36 pb-10 bg-cover bg-center bg-no-repeat text-white py-32 w-full shadow-lg" style={{ backgroundImage: `url(${coverImage})` }}>
         <div className="absolute inset-0 bg-blue-900 opacity-80"></div>
         <div className="w-full px-4 sm:px-6 lg:px-8 mx-auto flex flex-col items-center relative z-10">
           <motion.div className="w-40 h-40 rounded-full overflow-hidden shadow-xl border-4 border-blue-300">
@@ -148,7 +148,6 @@ const Page = () => {
           <motion.div className="mt-6 flex space-x-6">
             <a href={socialLinks.email}><FaEnvelope className="text-blue-300 text-3xl hover:text-blue-200 transition-colors" /></a>
             <a href={socialLinks.linkedin}><FaLinkedin className="text-blue-300 text-3xl hover:text-blue-200 transition-colors" /></a>
-            {/* <a href={socialLinks.twitter}><FaSquareXTwitter className="text-blue-300 text-3xl hover:text-blue-200 transition-colors" /></a> */}
           </motion.div>
         </div>
       </motion.div>
@@ -156,111 +155,155 @@ const Page = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Biography Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-600">Biography</h2>
-          <p className="text-lg text-blue-600 mb-6">{biography}</p>
+        <motion.section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-blue-600 border-b pb-2">Biography</h2>
+          <p className="text-lg text-gray-700 mb-6 leading-relaxed">{biography}</p>
+          
+          {/* Founder Images Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
+              <Image 
+                src="/images/prof-azaiki-speaking.jpg" 
+                alt="Prof. Azaiki delivering a keynote address"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                <p className="text-sm">Delivering a keynote address on education reform</p>
+              </div>
+            </div>
+            <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
+              <Image 
+                src="/images/prof-azaiki-award.jpg" 
+                alt="Prof. Azaiki receiving an academic award"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                <p className="text-sm">Receiving the Distinguished Scholar Award</p>
+              </div>
+            </div>
+            <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
+              <Image 
+                src="/images/prof-azaiki-library.jpg" 
+                alt="Prof. Azaiki at the Azaiki Public Library"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                <p className="text-sm">Inaugurating the Azaiki Public Library</p>
+              </div>
+            </div>
+          </div>
         </motion.section>
 
         {/* Education Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-500">Education</h2>
-          <p className="text-lg text-blue-500 mb-6">Professor Azaiki's academic journey reflects his commitment to lifelong learning and excellence.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {education.map((edu, index) => (
-              <div key={index} className="bg-blue-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-blue-200">{edu.degree}</h3>
-                {edu.institution && <p className="text-blue-100 mt-2">{edu.institution}</p>}
-                <p className="text-blue-300 mt-2">{edu.year}</p>
-              </div>
-            ))}
+        <motion.section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-blue-600 border-b pb-2">Academic Journey</h2>
+          
+          <div className="prose max-w-none text-gray-700">
+            <h3 className="text-2xl font-semibold text-blue-700 mb-4">PROF. STEPHEN SINIKIEM AZAIKI, PhD, OON</h3>
+            <h4 className="text-xl font-medium text-blue-600 mb-6">Professor of Agronomy | Conflict Resolution/Policy Expert | Development Advocate</h4>
+            
+            <p className="mb-4 leading-relaxed">
+              Professor Stephen Sinikiem Azaiki is a distinguished academic, public servant, and development advocate with extensive experience in education, governance, and community development. His academic journey reflects an unrelenting pursuit of knowledge and excellence across multiple disciplines.
+            </p>
+            
+            <p className="mb-4 leading-relaxed">
+              He holds multiple advanced degrees, including:
+            </p>
+            
+            <ul className="list-disc pl-6 mb-6 space-y-2">
+              <li><strong>D.Sc. in Personnel Management</strong> (2021)</li>
+              <li><strong>PhD in Personnel Management</strong> (2017)</li>
+              <li><strong>MBA in Project Management</strong> from Federal University of Technology, Owerri (FUTO) (2001)</li>
+              <li><strong>PhD in Agriculture (Biological Sciences)</strong> from Ukrainian Agricultural University, Kiev (1991)</li>
+              <li><strong>M.Sc. in Agronomy (Plant Protection)</strong> from Ukrainian Agricultural University, Kiev (1986)</li>
+            </ul>
+            
+            <p className="mb-4 leading-relaxed">
+              His academic journey has taken him to prestigious institutions worldwide including Harvard University, Oxford University, and the Wharton School of University of Pennsylvania for specialized training and fellowships. This global exposure has enriched his perspective and approach to problem-solving in the Nigerian context.
+            </p>
+            
+            <p className="mb-4 leading-relaxed">
+              Professor Azaiki's academic philosophy emphasizes the practical application of knowledge. His research has focused on agricultural development, personnel management, and education policy - areas where he has made significant contributions through publications, policy recommendations, and institutional development.
+            </p>
+            
+            <p className="leading-relaxed">
+              His commitment to education extends beyond formal degrees. He has participated in numerous executive education programs and has been a visiting scholar at several institutions, sharing his expertise while continuously expanding his own knowledge base.
+            </p>
           </div>
         </motion.section>
 
-        {/* Work Experience Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-500">Work Experience</h2>
-          <p className="text-lg text-blue-500 mb-6">A distinguished career spanning academia, public service, and governance.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {workExperience.map((exp, index) => (
-              <div key={index} className="bg-blue-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-blue-200">{exp.role}</h3>
-                <p className="text-blue-100 mt-2">{exp.institution}</p>
-                <p className="text-blue-300 mt-2">{exp.period}</p>
-              </div>
-            ))}
+        {/* Work Experience Section - Long Form */}
+        <motion.section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-blue-600 border-b pb-2">Professional Experience</h2>
+          
+          <div className="prose max-w-none text-gray-700">
+            <p className="mb-6 leading-relaxed">
+              Professor Azaiki's professional journey reflects his versatility and commitment to national development through various leadership roles:
+            </p>
+            
+            <h3 className="text-xl font-semibold text-blue-700 mb-3">Academic Appointments</h3>
+            <ul className="list-disc pl-6 mb-6 space-y-2">
+              <li><strong>Adjunct Professor of Agriculture (Agronomy)</strong> at University of Life and Environmental Sciences, Kiev, Ukraine (Present)</li>
+            </ul>
+            
+            <h3 className="text-xl font-semibold text-blue-700 mb-3">Public Service</h3>
+            <ul className="list-disc pl-6 mb-6 space-y-2">
+              <li><strong>National Director</strong> of National Directorate of Employment (NDE), Abuja (2007–2010)</li>
+              <li><strong>Pioneer Commissioner for Agriculture</strong> in Bayelsa State (1997–1999)</li>
+            </ul>
           </div>
         </motion.section>
 
-        {/* Appointments Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-500">Appointments</h2>
-          <p className="text-lg text-blue-500 mb-6">Key leadership roles in education and governance.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {appointments.map((app, index) => (
-              <div key={index} className="bg-blue-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-blue-200">{app.role}</h3>
-                <p className="text-blue-100 mt-2">{app.institution}</p>
-                <p className="text-blue-300 mt-2">{app.period}</p>
-              </div>
-            ))}
+        {/* Appointments Section - Long Form */}
+        <motion.section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-blue-600 border-b pb-2">Key Appointments</h2>
+          
+          <div className="prose max-w-none text-gray-700">
+            <p className="mb-6 leading-relaxed">
+              Professor Azaiki has served in several strategic leadership positions that have influenced policy and institutional development:
+            </p>
+            
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Pro-Chancellor and Chairman, Governing Council</strong> of Niger Delta University (2017–2018)</li>
+              <li><strong>Member, Governing Council</strong> of Niger Delta University, Bayelsa State (2013–2016)</li>
+              <li><strong>Honorary Special Adviser on Education and Capacity Building</strong> to Bayelsa State Government (2010–2015)</li>
+              <li><strong>Honorary Special Adviser on Agriculture</strong> to Bayelsa State Government (2013)</li>
+              <li><strong>Member, Governing Council</strong> of Federal University of Technology, Akure (2009–2012)</li>
+              <li><strong>Secretary to the Bayelsa State Government</strong> (2002–2003, reappointed 2003–2006)</li>
+            </ul>
           </div>
         </motion.section>
 
-        {/* Community Service Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-500">Community Service</h2>
-          <p className="text-lg text-blue-500 mb-6">Contributions to community development and nation-building.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {communityService.map((service, index) => (
-              <div key={index} className="bg-blue-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-blue-200">{service.activity}</h3>
-                <p className="text-blue-300 mt-2">{service.year}</p>
+        {/* Additional Images Section */}
+        <motion.section className="mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-blue-600 border-b pb-2">Gallery</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="relative h-80 rounded-lg overflow-hidden shadow-lg">
+              <Image 
+                src="/images/prof-azaiki-meeting.jpg" 
+                alt="Prof. Azaiki in a policy meeting"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                <p className="text-sm">Chairing an education policy meeting</p>
               </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Activities Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-500">Activities</h2>
-          <p className="text-lg text-blue-500 mb-6">Leadership in global and national organizations.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activities.map((act, index) => (
-              <div key={index} className="bg-blue-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-blue-200">{act.role}</h3>
-                <p className="text-blue-100 mt-2">{act.organization}</p>
-                <p className="text-blue-300 mt-2">{act.period}</p>
+            </div>
+            <div className="relative h-80 rounded-lg overflow-hidden shadow-lg">
+              <Image 
+                src="/images/prof-azaiki-field.jpg" 
+                alt="Prof. Azaiki in agricultural field visit"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                <p className="text-sm">Field visit to agricultural project</p>
               </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Politics Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-500">Politics</h2>
-          <p className="text-lg text-blue-500 mb-6">Service in the Nigerian National Assembly.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {politics.map((pol, index) => (
-              <div key={index} className="bg-blue-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-blue-200">{pol.role}</h3>
-                <p className="text-blue-100 mt-2">{pol.institution}</p>
-                <p className="text-blue-300 mt-2">{pol.period}</p>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Director Positions Section */}
-        <motion.section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-blue-500">Director Positions</h2>
-          <p className="text-lg text-blue-500 mb-6">Board memberships in key organizations.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {directorPositions.map((dir, index) => (
-              <div key={index} className="bg-blue-800 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-blue-200">{dir.role}</h3>
-                <p className="text-blue-100 mt-2">{dir.institution}</p>
-              </div>
-            ))}
+            </div>
           </div>
         </motion.section>
       </div>
