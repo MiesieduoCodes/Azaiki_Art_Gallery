@@ -59,8 +59,17 @@ export default function GalleryPage() {
     currentPage * itemsPerPage
   );
 
+  // Calculate the range of artworks being shown
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, artworks.length);
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    // Scroll to top of gallery section when page changes
+    const gallerySection = document.getElementById("gallery-section");
+    if (gallerySection) {
+      gallerySection.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   if (isLoading) {
@@ -107,124 +116,141 @@ export default function GalleryPage() {
       </section>
 
       {/* Gallery Grid */}
-      <section className="py-12">
-      <div className="container-custom">
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    {currentArtworks.map((artwork) => (
-      <div key={artwork.id}>
-        <Link href={`/gallery/${artwork.id}`} className="block">
-          <div className="relative overflow-hidden rounded-lg shadow-md aspect-square">
-            <Image
-              src={artwork.imageUrl}
-              alt={artwork.title}
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
-              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <h3 className="text-lg font-bold">{artwork.title}</h3>
-                <p className="text-sm text-gray-200">{artwork.artist}</p>
-                <span className="inline-block mt-2 text-xs bg-blue-700 px-2 py-1 rounded-full">
-                  {artwork.category}
-                </span>
-              </div>
-            </div>
+      <section id="gallery-section" className="py-12">
+        <div className="container-custom">
+          {/* Image count display - shown above the grid */}
+          <div className="flex justify-between items-center mb-6">
+            <p className="text-gray-600">
+              Showing <span className="font-medium">{startItem}-{endItem}</span> of <span className="font-medium">{artworks.length}</span> artworks
+            </p>
           </div>
-        </Link>
-      </div>
-    ))}
-  </div>
 
-  {/* Pagination */}
-  <div className="mt-12 flex justify-center">
-    <nav className="flex items-center gap-1">
-      {/* Previous Button - Always visible */}
-      <button
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <span className="sr-only md:not-sr-only">Previous</span>
-        <span className="md:sr-only">←</span>
-      </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentArtworks.map((artwork) => (
+              <div key={artwork.id}>
+                <Link href={`/gallery/${artwork.id}`} className="block">
+                  <div className="relative overflow-hidden rounded-lg shadow-md aspect-square">
+                    <Image
+                      src={artwork.imageUrl}
+                      alt={artwork.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="text-lg font-bold">{artwork.title}</h3>
+                        <p className="text-sm text-gray-200">{artwork.artist}</p>
+                        <span className="inline-block mt-2 text-xs bg-blue-700 px-2 py-1 rounded-full">
+                          {artwork.category}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
 
-      {/* First Page - Always visible */}
-      <button
-        onClick={() => handlePageChange(1)}
-        className={`px-3 py-1 border border-gray-300 rounded-md ${
-          currentPage === 1
-            ? "bg-blue-700 text-white"
-            : "text-gray-600"
-        }`}
-      >
-        1
-      </button>
+          {/* Pagination */}
+          <div className="mt-12 flex flex-col sm:flex-row justify-between items-center gap-4">
+            {/* Image count display - shown below the grid on mobile */}
+            <p className="text-gray-600 sm:hidden">
+              Showing <span className="font-medium">{startItem}-{endItem}</span> of <span className="font-medium">{artworks.length}</span> artworks
+            </p>
 
-      {/* Ellipsis for large page ranges */}
-      {currentPage > 3 && totalPages > 5 && (
-        <span className="px-2">...</span>
-      )}
+            <nav className="flex items-center gap-1">
+              {/* Previous Button - Always visible */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="sr-only md:not-sr-only">Previous</span>
+                <span className="md:sr-only">←</span>
+              </button>
 
-      {/* Dynamic middle pages - shown on larger screens */}
-      {Array.from({ length: totalPages }, (_, index) => {
-        const page = index + 1;
-        // Show only relevant pages on mobile
-        if (
-          (page >= currentPage - 1 && page <= currentPage + 1) ||
-          page === totalPages ||
-          page === 1
-        ) {
-          // Skip if we've already handled first/last page or it's out of range
-          if (page === 1 || page === totalPages) return null;
-          
-          return (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`hidden sm:block px-3 py-1 border border-gray-300 rounded-md ${
-                currentPage === page
-                  ? "bg-blue-700 text-white"
-                  : "text-gray-600"
-              }`}
-            >
-              {page}
-            </button>
-          );
-        }
-        return null;
-      })}
+              {/* First Page - Always visible */}
+              <button
+                onClick={() => handlePageChange(1)}
+                className={`px-3 py-1 border border-gray-300 rounded-md ${
+                  currentPage === 1
+                    ? "bg-blue-700 text-white"
+                    : "text-gray-600"
+                }`}
+              >
+                1
+              </button>
 
-      {/* Ellipsis for large page ranges */}
-      {currentPage < totalPages - 2 && totalPages > 5 && (
-        <span className="px-2 hidden sm:block">...</span>
-      )}
+              {/* Ellipsis for large page ranges */}
+              {currentPage > 3 && totalPages > 5 && (
+                <span className="px-2">...</span>
+              )}
 
-      {/* Last Page - Always visible if different from first */}
-      {totalPages > 1 && (
-        <button
-          onClick={() => handlePageChange(totalPages)}
-          className={`px-3 py-1 border border-gray-300 rounded-md ${
-            currentPage === totalPages
-              ? "bg-blue-700 text-white"
-              : "text-gray-600"
-          }`}
-        >
-          {totalPages}
-        </button>
-      )}
+              {/* Dynamic middle pages - shown on larger screens */}
+              {Array.from({ length: totalPages }, (_, index) => {
+                const page = index + 1;
+                // Show only relevant pages on mobile
+                if (
+                  (page >= currentPage - 1 && page <= currentPage + 1) ||
+                  page === totalPages ||
+                  page === 1
+                ) {
+                  // Skip if we've already handled first/last page or it's out of range
+                  if (page === 1 || page === totalPages) return null;
+                  
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`hidden sm:block px-3 py-1 border border-gray-300 rounded-md ${
+                        currentPage === page
+                          ? "bg-blue-700 text-white"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                }
+                return null;
+              })}
 
-      {/* Next Button - Always visible */}
-      <button
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <span className="sr-only md:not-sr-only">Next</span>
-        <span className="md:sr-only">→</span>
-      </button>
-    </nav>
-  </div>
-</div>
+              {/* Ellipsis for large page ranges */}
+              {currentPage < totalPages - 2 && totalPages > 5 && (
+                <span className="px-2 hidden sm:block">...</span>
+              )}
+
+              {/* Last Page - Always visible if different from first */}
+              {totalPages > 1 && (
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  className={`px-3 py-1 border border-gray-300 rounded-md ${
+                    currentPage === totalPages
+                      ? "bg-blue-700 text-white"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              )}
+
+              {/* Next Button - Always visible */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="sr-only md:not-sr-only">Next</span>
+                <span className="md:sr-only">→</span>
+              </button>
+            </nav>
+
+            {/* Image count display - shown below the grid on desktop */}
+            <p className="text-gray-600 hidden sm:block">
+              Showing <span className="font-medium">{startItem}-{endItem}</span> of <span className="font-medium">{artworks.length}</span> artworks
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Featured Collections */}
