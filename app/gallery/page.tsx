@@ -153,103 +153,111 @@ export default function GalleryPage() {
 
           {/* Pagination */}
           <div className="mt-12 flex flex-col sm:flex-row justify-between items-center gap-4">
-            {/* Image count display - shown below the grid on mobile */}
-            <p className="text-gray-600 sm:hidden">
-              Showing <span className="font-medium">{startItem}-{endItem}</span> of <span className="font-medium">{artworks.length}</span> artworks
-            </p>
+  {/* Image count display - shown below the grid on mobile */}
+  <p className="text-gray-600 sm:hidden">
+    Showing <span className="font-medium">{startItem}-{endItem}</span> of <span className="font-medium">{artworks.length}</span> artworks
+  </p>
 
-            <nav className="flex items-center gap-1">
-              {/* Previous Button - Always visible */}
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="sr-only md:not-sr-only">Previous</span>
-                <span className="md:sr-only">←</span>
-              </button>
+  <nav className="flex items-center gap-1">
+    {/* Previous Button - Always visible */}
+    <button
+      onClick={() => handlePageChange(currentPage - 1)}
+      disabled={currentPage === 1}
+      className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <span className="sr-only md:not-sr-only">Previous</span>
+      <span className="md:sr-only">←</span>
+    </button>
 
-              {/* First Page - Always visible */}
-              <button
-                onClick={() => handlePageChange(1)}
-                className={`px-3 py-1 border border-gray-300 rounded-md ${
-                  currentPage === 1
-                    ? "bg-blue-700 text-white"
-                    : "text-gray-600"
-                }`}
-              >
-                1
-              </button>
+    {/* Always show first page */}
+    <button
+      onClick={() => handlePageChange(1)}
+      className={`px-3 py-1 border border-gray-300 rounded-md ${
+        currentPage === 1 ? "bg-blue-700 text-white" : "text-gray-600"
+      }`}
+    >
+      1
+    </button>
 
-              {/* Ellipsis for large page ranges */}
-              {currentPage > 3 && totalPages > 5 && (
-                <span className="px-2">...</span>
-              )}
+    {/* Show dynamic page numbers */}
+    {(() => {
+      const pages = [];
+      let startPage = Math.max(2, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, currentPage + 1);
 
-              {/* Dynamic middle pages - shown on larger screens */}
-              {Array.from({ length: totalPages }, (_, index) => {
-                const page = index + 1;
-                // Show only relevant pages on mobile
-                if (
-                  (page >= currentPage - 1 && page <= currentPage + 1) ||
-                  page === totalPages ||
-                  page === 1
-                ) {
-                  // Skip if we've already handled first/last page or it's out of range
-                  if (page === 1 || page === totalPages) return null;
-                  
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`hidden sm:block px-3 py-1 border border-gray-300 rounded-md ${
-                        currentPage === page
-                          ? "bg-blue-700 text-white"
-                          : "text-gray-600"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                }
-                return null;
-              })}
+      // Adjust if we're at the beginning
+      if (currentPage <= 3) {
+        endPage = Math.min(4, totalPages - 1);
+      }
+      // Adjust if we're at the end
+      else if (currentPage >= totalPages - 2) {
+        startPage = Math.max(totalPages - 3, 2);
+      }
 
-              {/* Ellipsis for large page ranges */}
-              {currentPage < totalPages - 2 && totalPages > 5 && (
-                <span className="px-2 hidden sm:block">...</span>
-              )}
+      // Show left ellipsis if needed
+      if (startPage > 2) {
+        pages.push(
+          <span key="left-ellipsis" className="px-2">
+            ...
+          </span>
+        );
+      }
 
-              {/* Last Page - Always visible if different from first */}
-              {totalPages > 1 && (
-                <button
-                  onClick={() => handlePageChange(totalPages)}
-                  className={`px-3 py-1 border border-gray-300 rounded-md ${
-                    currentPage === totalPages
-                      ? "bg-blue-700 text-white"
-                      : "text-gray-600"
-                  }`}
-                >
-                  {totalPages}
-                </button>
-              )}
+      // Show middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(
+          <button
+            key={i}
+            onClick={() => handlePageChange(i)}
+            className={`px-3 py-1 border border-gray-300 rounded-md ${
+              currentPage === i ? "bg-blue-700 text-white" : "text-gray-600"
+            }`}
+          >
+            {i}
+          </button>
+        );
+      }
 
-              {/* Next Button - Always visible */}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="sr-only md:not-sr-only">Next</span>
-                <span className="md:sr-only">→</span>
-              </button>
-            </nav>
+      // Show right ellipsis if needed
+      if (endPage < totalPages - 1) {
+        pages.push(
+          <span key="right-ellipsis" className="px-2">
+            ...
+          </span>
+        );
+      }
 
-            {/* Image count display - shown below the grid on desktop */}
-            <p className="text-gray-600 hidden sm:block">
-              Showing <span className="font-medium">{startItem}-{endItem}</span> of <span className="font-medium">{artworks.length}</span> artworks
-            </p>
-          </div>
+      return pages;
+    })()}
+
+    {/* Show last page if there is more than 1 page */}
+    {totalPages > 1 && (
+      <button
+        onClick={() => handlePageChange(totalPages)}
+        className={`px-3 py-1 border border-gray-300 rounded-md ${
+          currentPage === totalPages ? "bg-blue-700 text-white" : "text-gray-600"
+        }`}
+      >
+        {totalPages}
+      </button>
+    )}
+
+    {/* Next Button - Always visible */}
+    <button
+      onClick={() => handlePageChange(currentPage + 1)}
+      disabled={currentPage === totalPages}
+      className="px-3 py-1 border border-gray-300 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <span className="sr-only md:not-sr-only">Next</span>
+      <span className="md:sr-only">→</span>
+    </button>
+  </nav>
+
+  {/* Image count display - shown below the grid on desktop */}
+  <p className="text-gray-600 hidden sm:block">
+    Showing <span className="font-medium">{startItem}-{endItem}</span> of <span className="font-medium">{artworks.length}</span> artworks
+  </p>
+</div>
         </div>
       </section>
 
