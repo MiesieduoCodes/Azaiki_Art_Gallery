@@ -3,7 +3,13 @@
 import type React from "react"
 
 import { createContext, useContext, useEffect, useState } from "react"
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth"
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth"
 import { auth } from "@/lib/firebase/config"
 
 type User = {
@@ -27,16 +33,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Enable persistent auth state
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        console.log("Firebase persistence set to LOCAL")
+      })
+      .catch((error) => {
+        console.error("Error setting persistence:", error)
+      })
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
+        console.log("User authenticated:", firebaseUser.email)
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
         })
+
+        // Store auth status in localStorage for middleware check
+        localStorage.setItem("isAuthenticated", "true")
       } else {
+        console.log("No authenticated user")
         setUser(null)
+        localStorage.removeItem("isAuthenticated")
       }
       setLoading(false)
     })
@@ -46,8 +67,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-    } catch (error) {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      console.log("Login successful:", userCredential.user.email)
+
+      // Get the token and store it for the middleware
+      const token = await userCredential.user.getIdToken()
+      document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+
+      return userCredential.user
+    } catch (error: any) {
       console.error("Login error:", error)
       throw error
     }
@@ -56,6 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await signOut(auth)
+      // Clear auth cookie
+      document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      localStorage.removeItem("isAuthenticated")
+      console.log("Logged out successfully")
     } catch (error) {
       console.error("Logout error:", error)
       throw error

@@ -88,7 +88,7 @@ export default function ArtistsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col pt-24 gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl p-2 font-bold">Artists</h1>
         <Button asChild>

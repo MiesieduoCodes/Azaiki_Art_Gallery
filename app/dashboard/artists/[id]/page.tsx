@@ -90,7 +90,7 @@ export default function ArtistDetailsPage({ params }: { params: { id: string } }
 
   if (!artist) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center gap-4">
+      <div className="flex h-[70vh] flex-col pt-24 items-center justify-center gap-4">
         <h1 className="text-2xl font-bold">Artist not found</h1>
         <Button asChild>
           <Link href="/dashboard/artists">
@@ -103,7 +103,7 @@ export default function ArtistDetailsPage({ params }: { params: { id: string } }
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col pt-24 gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" asChild>

@@ -8,11 +8,11 @@ export function middleware(request: NextRequest) {
   // Define protected paths
   const isAdminPath = path.startsWith("/dashboard")
 
-  // Check for Firebase Auth session cookie
-  const session = request.cookies.get("__session")?.value
+  // Check for auth token cookie
+  const authToken = request.cookies.get("authToken")?.value
 
-  // If accessing admin path without session, redirect to login
-  if (isAdminPath && !session) {
+  // If accessing admin path without auth token, redirect to login
+  if (isAdminPath && !authToken) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 

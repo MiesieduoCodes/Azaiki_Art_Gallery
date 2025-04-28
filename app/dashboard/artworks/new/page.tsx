@@ -56,7 +56,7 @@ export default function NewArtworkPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pt-24">
       <div className="flex items-center gap-2">
         <Button size="icon" asChild>
           <Link href="/dashboard/artworks">

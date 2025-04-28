@@ -13,6 +13,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user) {
+      console.log("No authenticated user found, redirecting to login")
       router.push("/login")
     }
   }, [user, loading, router])

@@ -26,8 +26,12 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
-      router.push("/dashboard/artworks")
+      // Add a small delay to ensure Firebase auth state is updated
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 500)
     } catch (err: any) {
+      console.error("Login error:", err)
       setError(err.message || "Failed to login")
     } finally {
       setIsLoading(false)

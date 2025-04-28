@@ -96,7 +96,7 @@ export default function ArtworkDetailsPage({ params }: { params: PageParams }) {
 
   if (!artwork) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center gap-4">
+      <div className="flex h-[70vh] flex-col items-center pt-24 justify-center gap-4">
         <h1 className="text-2xl font-bold">Artwork not found</h1>
         <Button asChild>
           <Link href="/dashboard/artworks">
@@ -109,7 +109,7 @@ export default function ArtworkDetailsPage({ params }: { params: PageParams }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col pt-24 gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button size="icon" asChild>

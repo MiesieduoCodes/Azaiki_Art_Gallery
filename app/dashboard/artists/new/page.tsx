@@ -59,7 +59,7 @@ export default function NewArtistPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col pt-24 gap-6">
       <div className="flex items-center gap-2">
         <Button size="icon" asChild>
           <Link href="/dashboard/artists">
