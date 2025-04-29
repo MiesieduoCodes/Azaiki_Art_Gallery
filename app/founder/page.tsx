@@ -163,7 +163,7 @@ const Page = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
             <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
               <Image 
-                src="/images/prof-azaiki-speaking.jpg" 
+                src="/images/Founder1.jpg" 
                 alt="Prof. Azaiki delivering a keynote address"
                 fill
                 className="object-cover"
@@ -174,24 +174,13 @@ const Page = () => {
             </div>
             <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
               <Image 
-                src="/images/prof-azaiki-award.jpg" 
+                src="/images/Founder2.jpg" 
                 alt="Prof. Azaiki receiving an academic award"
                 fill
                 className="object-cover"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
                 <p className="text-sm">Receiving the Distinguished Scholar Award</p>
-              </div>
-            </div>
-            <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
-              <Image 
-                src="/images/prof-azaiki-library.jpg" 
-                alt="Prof. Azaiki at the Azaiki Public Library"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                <p className="text-sm">Inaugurating the Azaiki Public Library</p>
               </div>
             </div>
           </div>
@@ -284,7 +273,7 @@ const Page = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="relative h-80 rounded-lg overflow-hidden shadow-lg">
               <Image 
-                src="/images/prof-azaiki-meeting.jpg" 
+                src="/images/Founder3.jpg" 
                 alt="Prof. Azaiki in a policy meeting"
                 fill
                 className="object-cover"
@@ -295,7 +284,7 @@ const Page = () => {
             </div>
             <div className="relative h-80 rounded-lg overflow-hidden shadow-lg">
               <Image 
-                src="/images/prof-azaiki-field.jpg" 
+                src="/images/Founder4.jpg" 
                 alt="Prof. Azaiki in agricultural field visit"
                 fill
                 className="object-cover"
