@@ -279,7 +279,7 @@ const Page = () => {
                 className="object-cover"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                <p className="text-sm">Chairing an education policy meeting</p>
+                <p className="text-sm capitalize">the professor with the former governor, bayelsa state</p>
               </div>
             </div>
             <div className="relative h-80 rounded-lg overflow-hidden shadow-lg">
@@ -290,7 +290,7 @@ const Page = () => {
                 className="object-cover"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                <p className="text-sm">Field visit to agricultural project</p>
+                <p className="text-sm capitalize">the professor with the former president of nigeria</p>
               </div>
             </div>
           </div>
