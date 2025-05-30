@@ -158,8 +158,8 @@ export default function Contact() {
               <a href="tel:+2348141515074" className="text-blue-700 font-medium hover:text-blue-800">
                 +2348141515074
               </a>
-              <a href="tel:+2348034632325" className="text-blue-700 font-medium hover:text-blue-800">
-                +2348034632325
+              <a href="tel:+2349079041462" className="text-blue-700 font-medium hover:text-blue-800">
+                +2349079041462
               </a>
             </div>
 
